@@ -1,0 +1,22 @@
+# 默认构建目标平台
+[build]
+target = "thumbv6m-none-eabi"
+
+# 配置上传命令
+[target.thumbv6m-none-eabi]
+
+# rustflags = [
+#     "-C", "link-arg=--nmagic",
+#     "-C", "link-arg=-Tlink.x",
+#     "-C", "no-vectorize-loops",
+# ]
+
+# runner = "elf2uf2-rs -d"
+runner = "probe-rs run --chip RP2040"
+
+# 使用本地库文件
+# [source.crates-io]
+# replace-with = "vendored-sources"
+
+# [source.vendored-sources]
+# directory = "vendor"

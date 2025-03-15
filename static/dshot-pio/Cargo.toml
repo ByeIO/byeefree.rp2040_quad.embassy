@@ -1,0 +1,18 @@
+[package]
+name = "dshot-pio"
+version = "0.3.0"
+edition = "2021"
+
+[features]
+embassy-rp = ["dep:embassy-rp", "embassy-rp/rp2040"]
+rp2040-hal = ["dep:rp2040-hal"]
+
+[dependencies]
+# dshot-encoder = { git = "https://github.com/peterkrull/dshot-encoder" }
+dshot-encoder = { path = "./static/dshot-encoder" }
+
+pio-proc = "0.2"
+pio = "0.2"
+
+rp2040-hal = { version = "0.11", optional = true }
+embassy-rp = { version = "0.3", optional = true }

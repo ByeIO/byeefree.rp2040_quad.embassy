@@ -1,0 +1,6 @@
+$ mkdir -p "/Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/target/thumbv6m-none-eabi/debug/build/az-e65ca8a891c2e82f/out/try_track_caller"
+$ cd "/Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/target/thumbv6m-none-eabi/debug/build/az-e65ca8a891c2e82f/out/try_track_caller"
+$ printf '%s' "// try_tra"... > "/Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/target/thumbv6m-none-eabi/debug/build/az-e65ca8a891c2e82f/out/try_track_caller/try_track_caller.rs"
+$ cd "/Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/target/thumbv6m-none-eabi/debug/build/az-e65ca8a891c2e82f/out/try_track_caller" && "/Users/workspace/.rustup/toolchains/1.83-aarch64-apple-darwin/bin/rustc" "try_track_caller.rs" "--emit=dep-info,metadata" >& /dev/null
+cargo:rustc-cfg=track_caller
+$ rm -r "/Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/target/thumbv6m-none-eabi/debug/build/az-e65ca8a891c2e82f/out/try_track_caller"

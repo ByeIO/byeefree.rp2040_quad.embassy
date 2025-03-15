@@ -1,0 +1,10 @@
+/Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/target/thumbv6m-none-eabi/debug/deps/librp_binary_info-88e8a4b5bd3e630b.rmeta: /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rp-binary-info-0.1.0/src/lib.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rp-binary-info-0.1.0/src/consts.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rp-binary-info-0.1.0/src/types.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rp-binary-info-0.1.0/src/macros.rs
+
+/Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/target/thumbv6m-none-eabi/debug/deps/librp_binary_info-88e8a4b5bd3e630b.rlib: /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rp-binary-info-0.1.0/src/lib.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rp-binary-info-0.1.0/src/consts.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rp-binary-info-0.1.0/src/types.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rp-binary-info-0.1.0/src/macros.rs
+
+/Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/target/thumbv6m-none-eabi/debug/deps/rp_binary_info-88e8a4b5bd3e630b.d: /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rp-binary-info-0.1.0/src/lib.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rp-binary-info-0.1.0/src/consts.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rp-binary-info-0.1.0/src/types.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rp-binary-info-0.1.0/src/macros.rs
+
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rp-binary-info-0.1.0/src/lib.rs:
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rp-binary-info-0.1.0/src/consts.rs:
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rp-binary-info-0.1.0/src/types.rs:
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/rp-binary-info-0.1.0/src/macros.rs:

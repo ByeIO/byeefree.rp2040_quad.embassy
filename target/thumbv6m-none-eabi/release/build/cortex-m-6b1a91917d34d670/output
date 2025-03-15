@@ -1,0 +1,4 @@
+cargo:rustc-link-lib=static=cortex-m
+cargo:rustc-link-search=/Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/target/thumbv6m-none-eabi/release/build/cortex-m-6b1a91917d34d670/out
+cargo:rustc-cfg=cortex_m
+cargo:rustc-cfg=armv6m

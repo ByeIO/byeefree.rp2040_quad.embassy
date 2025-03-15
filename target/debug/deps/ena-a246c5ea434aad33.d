@@ -1,0 +1,11 @@
+/Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/target/debug/deps/libena-a246c5ea434aad33.rmeta: /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ena-0.14.3/src/lib.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ena-0.14.3/src/snapshot_vec.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ena-0.14.3/src/undo_log.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ena-0.14.3/src/unify/mod.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ena-0.14.3/src/unify/backing_vec.rs
+
+/Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/target/debug/deps/libena-a246c5ea434aad33.rlib: /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ena-0.14.3/src/lib.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ena-0.14.3/src/snapshot_vec.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ena-0.14.3/src/undo_log.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ena-0.14.3/src/unify/mod.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ena-0.14.3/src/unify/backing_vec.rs
+
+/Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/target/debug/deps/ena-a246c5ea434aad33.d: /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ena-0.14.3/src/lib.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ena-0.14.3/src/snapshot_vec.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ena-0.14.3/src/undo_log.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ena-0.14.3/src/unify/mod.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ena-0.14.3/src/unify/backing_vec.rs
+
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ena-0.14.3/src/lib.rs:
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ena-0.14.3/src/snapshot_vec.rs:
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ena-0.14.3/src/undo_log.rs:
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ena-0.14.3/src/unify/mod.rs:
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/ena-0.14.3/src/unify/backing_vec.rs:
