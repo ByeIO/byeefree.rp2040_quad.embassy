@@ -83,13 +83,14 @@ pub async fn init_usb(usb_periph: embassy_rp::peripherals::USB, spawner: &Spawne
     let mut builder = Builder::new(
         driver,
         config,
-        &mut config_descriptor[..],  // 转换为切片
+        // 转换为切片
+        &mut config_descriptor[..],  
         &mut bos_descriptor[..],
         &mut [],
         &mut control_buf[..],
     );
 
-    // 创建CDC类实例（参考网页69 USB总线特性）
+    // 创建CDC类实例
     let class = CdcAcmClass::new(&mut builder, state, 64);
     let logger_class = CdcAcmClass::new(&mut builder, logger_state, 64);
 

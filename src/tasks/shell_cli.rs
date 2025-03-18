@@ -8,18 +8,23 @@ use embassy_usb::driver::EndpointError;
 use embassy_usb::{Builder, Config};
 use embassy_rp::peripherals::USB;
 
+use static_cell::StaticCell;
+
 use crate::shell::CdcAcmIO; 
 
 pub async fn cli_task<T: Instance>(
-    class: &mut CdcAcmClass<'static, Driver<'static, T>>
+    class: &mut CdcAcmClass<'static, Driver<'static, T>>,
 ) {
     let mut cli_io = CdcAcmIO { class };
+    
     loop {
-        if let Err(e) = crate::modules::shell::run_cli(&mut cli_io).await {
-            // defmt::println!("CLI error: {:?}", e);
-            defmt::println!("cli error!");
-            // 根据错误类型决定是否继续循环
-            break;
+        if let Err(e) = crate::modules::shell::run_cli(
+            &mut cli_io, 
+        ).await {
+            defmt::println!("cli error!\nResetting cli...");
+            embassy_time::Timer::after_millis(100).await;
+            // FIXME: 无法重新初始化
+            loop{}
         }
     }
 }

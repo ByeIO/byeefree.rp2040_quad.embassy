@@ -16,6 +16,7 @@ use core::ops::DerefMut;
 use core::str::FromStr;
 
 /// 通用缓冲区结构，用于ufmt格式化输出
+#[derive(Clone)]
 pub struct UBuffer<const N: usize> {
     // 固定容量堆内存分配
     pub inner: heapless::Vec<u8, N>, 
@@ -27,6 +28,7 @@ impl<const N: usize> UBuffer<N> {
             inner: heapless::Vec::new(),
         }
     }
+    
 }
 
 /// 实现Default特征

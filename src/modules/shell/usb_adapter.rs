@@ -41,7 +41,8 @@ pub struct CdcAcmIO<'a, T: Instance> {
 
 // 为结构体实现ErrorType trait
 impl<T: Instance> ErrorType for CdcAcmIO<'_, T> {
-    type Error = ErrorKind; // 明确指定错误类型为ErrorKind
+    // 明确指定错误类型为ErrorKind
+    type Error = ErrorKind; 
 }
 
 impl<T: Instance> embedded_io_async::Read for CdcAcmIO<'_, T> {

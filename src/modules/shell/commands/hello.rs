@@ -9,7 +9,7 @@ use crate::shell::{UBuffer, INTERRUPT};
 use heapless::String;
 use core::str::FromStr;
 
-#[derive(Command)]
+#[derive(Command, Clone)]
 pub enum HelloCommand {
     // 打印hello+名称
     /// Say hello to World or someone else
