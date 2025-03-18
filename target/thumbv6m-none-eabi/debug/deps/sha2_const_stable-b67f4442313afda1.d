@@ -1,0 +1,8 @@
+/Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/target/thumbv6m-none-eabi/debug/deps/libsha2_const_stable-b67f4442313afda1.rmeta: /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sha2-const-stable-0.1.0/src/lib.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sha2-const-stable-0.1.0/src/constants.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sha2-const-stable-0.1.0/src/sha.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sha2-const-stable-0.1.0/src/util.rs
+
+/Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/target/thumbv6m-none-eabi/debug/deps/sha2_const_stable-b67f4442313afda1.d: /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sha2-const-stable-0.1.0/src/lib.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sha2-const-stable-0.1.0/src/constants.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sha2-const-stable-0.1.0/src/sha.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sha2-const-stable-0.1.0/src/util.rs
+
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sha2-const-stable-0.1.0/src/lib.rs:
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sha2-const-stable-0.1.0/src/constants.rs:
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sha2-const-stable-0.1.0/src/sha.rs:
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/sha2-const-stable-0.1.0/src/util.rs:

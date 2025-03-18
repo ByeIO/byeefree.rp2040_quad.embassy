@@ -1,0 +1,10 @@
+/Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/target/thumbv6m-none-eabi/debug/deps/libfugit-1dd5db01c7064ad0.rmeta: /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fugit-0.3.7/src/lib.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fugit-0.3.7/src/aliases.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fugit-0.3.7/src/duration.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fugit-0.3.7/src/helpers.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fugit-0.3.7/src/instant.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fugit-0.3.7/src/rate.rs
+
+/Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/target/thumbv6m-none-eabi/debug/deps/fugit-1dd5db01c7064ad0.d: /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fugit-0.3.7/src/lib.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fugit-0.3.7/src/aliases.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fugit-0.3.7/src/duration.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fugit-0.3.7/src/helpers.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fugit-0.3.7/src/instant.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fugit-0.3.7/src/rate.rs
+
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fugit-0.3.7/src/lib.rs:
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fugit-0.3.7/src/aliases.rs:
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fugit-0.3.7/src/duration.rs:
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fugit-0.3.7/src/helpers.rs:
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fugit-0.3.7/src/instant.rs:
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fugit-0.3.7/src/rate.rs:

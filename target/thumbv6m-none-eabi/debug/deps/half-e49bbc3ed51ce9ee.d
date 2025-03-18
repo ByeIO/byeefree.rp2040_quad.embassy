@@ -1,0 +1,11 @@
+/Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/target/thumbv6m-none-eabi/debug/deps/libhalf-e49bbc3ed51ce9ee.rmeta: /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-2.4.1/src/lib.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-2.4.1/src/bfloat.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-2.4.1/src/bfloat/convert.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-2.4.1/src/binary16.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-2.4.1/src/binary16/arch.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-2.4.1/src/leading_zeros.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-2.4.1/src/slice.rs
+
+/Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/target/thumbv6m-none-eabi/debug/deps/half-e49bbc3ed51ce9ee.d: /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-2.4.1/src/lib.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-2.4.1/src/bfloat.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-2.4.1/src/bfloat/convert.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-2.4.1/src/binary16.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-2.4.1/src/binary16/arch.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-2.4.1/src/leading_zeros.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-2.4.1/src/slice.rs
+
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-2.4.1/src/lib.rs:
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-2.4.1/src/bfloat.rs:
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-2.4.1/src/bfloat/convert.rs:
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-2.4.1/src/binary16.rs:
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-2.4.1/src/binary16/arch.rs:
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-2.4.1/src/leading_zeros.rs:
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/half-2.4.1/src/slice.rs:

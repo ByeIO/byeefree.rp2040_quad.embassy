@@ -1,0 +1,9 @@
+/Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/target/thumbv6m-none-eabi/debug/deps/libembedded_io-e06787f7d3d7c732.rmeta: /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/embedded-io-0.6.1/src/lib.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/embedded-io-0.6.1/src/impls/mod.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/embedded-io-0.6.1/src/impls/slice_mut.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/embedded-io-0.6.1/src/impls/slice_ref.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/embedded-io-0.6.1/src/../README.md
+
+/Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/target/thumbv6m-none-eabi/debug/deps/embedded_io-e06787f7d3d7c732.d: /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/embedded-io-0.6.1/src/lib.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/embedded-io-0.6.1/src/impls/mod.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/embedded-io-0.6.1/src/impls/slice_mut.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/embedded-io-0.6.1/src/impls/slice_ref.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/embedded-io-0.6.1/src/../README.md
+
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/embedded-io-0.6.1/src/lib.rs:
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/embedded-io-0.6.1/src/impls/mod.rs:
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/embedded-io-0.6.1/src/impls/slice_mut.rs:
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/embedded-io-0.6.1/src/impls/slice_ref.rs:
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/embedded-io-0.6.1/src/../README.md:
