@@ -142,6 +142,7 @@ version = "0.1.0"
 dependencies = [
  "cortex-m",
  "cortex-m-rt",
+ "critical-section",
  "cyw43",
  "cyw43-pio",
  "defmt",
@@ -431,7 +432,7 @@ version = "0.1.0"
 
 [[package]]
 name = "dshot-pio"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "dshot-encoder",
  "embassy-rp",

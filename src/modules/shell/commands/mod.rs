@@ -18,6 +18,15 @@ pub mod mavlink2;
 // 4. calbrate命令
 pub mod calibrate;
 
+// 5. go运动命令
+pub mod go;
+
+// 6. motor直接控制命令
+pub mod motor;
+
+// 7. sensor传感器直接控制命令
+pub mod sensor;
+
 /// 命令处理器特征
 pub trait CommandHandler {
     fn handler(&self, serial: impl Read<Error = ErrorKind> + Write<Error = ErrorKind>) -> impl Future<Output = Result<(), ErrorKind>>;

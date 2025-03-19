@@ -1,3 +1,7 @@
+#![allow(non_camel_case_types)]
+
+//! 闪灯命令
+
 // 命令解析相关
 use embassy_futures::select::{select, Either};
 use embassy_time::{Duration, Ticker};

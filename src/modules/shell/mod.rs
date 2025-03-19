@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 //! 嵌入式CLI命令行接口实现
 
 use commands::hello::HelloCommand;
@@ -76,8 +78,8 @@ pub async fn run_cli<SERIAL: Read<Error = ErrorKind> + Write<Error = ErrorKind>>
             n
         };
 
-        defmt::println!("Read {} bytes from usb : {:?}", n, buffer[..n]);
-
+        // defmt::println!("Read {} bytes from usb : {:?}", n, buffer[..n]);
+        defmt::println!("Read {} bytes from usb : {}, {:?}", n, core::str::from_utf8(&buffer[..n]).unwrap(), buffer[..n]);
         // 处理每个输入字节
         for byte in buffer.iter().take(n) {
             let mut parsed_command = None;
@@ -104,6 +106,9 @@ pub async fn run_cli<SERIAL: Read<Error = ErrorKind> + Write<Error = ErrorKind>>
                     BaseCommand::Logo => serial.write_all(LOGO_GRAPHIC).await?,
                     BaseCommand::Greet { cmd }=> cmd.handler(&mut serial).await?,
                     BaseCommand::Blink { cmd }=> cmd.handler(&mut serial).await?,
+                    BaseCommand::Motor { cmd }=> cmd.handler(&mut serial).await?,
+                    BaseCommand::Go { cmd }=> cmd.handler(&mut serial).await?,
+                    BaseCommand::Sensor { cmd }=> cmd.handler(&mut serial).await?,
                     // Base::Cal { cmd } => cmd.handler(&mut serial).await?,
                     // Base::Sys { cmd } => cmd.handler(&mut serial).await?,
                     // Base::Mavlink2 { cmd } => cmd.handler(&mut serial).await?,
@@ -131,7 +136,7 @@ b"\x1B[32m
 \r  (=^_^=)
 \x1B[0m";
 
-/// 基础命令枚举, (`///`的文档注释会形成命令帮助文件, 所以只能使用英文)
+/// 命令注册, (`///`的文档注释会形成命令帮助文件, 所以只能使用英文)
 #[derive(Command, Clone)]
 #[command(help_title = "Basic commands")]
 enum BaseCommand {
@@ -167,18 +172,37 @@ enum BaseCommand {
     
     // 6. blink相关子命令
     /// Blink commands, `blink`
-    /// blink <mode> (none/one_fast/two_fast/three_fast/on_off_fast/on_off_slow/breathe),
     Blink {
         #[command(subcommand)]
         cmd: commands::blink::BlinkCommand,
     },
     
     // 7. hello相关子命令
-    /// Hello commands, `greet`, 
-    /// example: greet hello qsbye
+    /// Hello commands, `greet`
     Greet {
         #[command(subcommand)]
         cmd: commands::hello::HelloCommand,
+    },
+    
+    // 8. go相关子命令
+    /// go commands, `go`, example: go move forward 1, go take_off
+    Go {
+        #[command(subcommand)]
+        cmd: commands::go::GoCommand,
+    },
+    
+    // 9. motor相关子命令
+    /// motor commands, `motor`
+    Motor {
+        #[command(subcommand)]
+        cmd: commands::motor::MotorCommand,
+    },
+    
+    // 10. sensor相关子命令
+    /// sensor commands, `sensor`, example: sensor get micoair
+    Sensor {
+        #[command(subcommand)]
+        cmd: commands::sensor::SensorCommand,
     },
     
 }

@@ -70,6 +70,9 @@ ufmt = "0.2.0"
 embedded-alloc = { version = "0.6.0", features = ["llff"] }
 heapless = { version = "0.8.0", features = ["portable-atomic"] }
 
+# 临界区访问
+critical-section = { version = "1.2.0", features = [] }
+
 # cargo build/run
 [profile.dev]
 codegen-units = 1

@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 /// 重力常量 [m/s^2]
 pub const GRAVITY: f32 = 9.81;
 

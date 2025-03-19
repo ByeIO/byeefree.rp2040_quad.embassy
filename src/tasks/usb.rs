@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 //! USB通信模块
 
 // 内存分配相关

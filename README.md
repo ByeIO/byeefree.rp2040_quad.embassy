@@ -18,6 +18,26 @@
 ## 代码运行逻辑
 * main.rs -> tasks -> modules
 
+## 添加新功能流程
+1. drivers添加硬件驱动(可选)
+2. tasks添加异步任务
+3. utils::signals添加任务间通信的信号通道(订阅/发布模型)(可选)
+4. shell::commands添加调用命令(可选)
+5. main.rs启动任务
+
+## 全局变量设计原理
+1. **内部可变性模式**：
+   - 通过`RefCell`实现运行时的借用检查
+   - `CriticalSectionMutex`保证线程安全，`RefCell`管理内部可变性
+
+2. **借用规则**：
+   - `borrow_mut()`获取可变引用时自动进行运行时检查
+   - 临界区确保同一时刻只有一个线程能获取可变引用
+
+3. **数据封装**：
+   - 全局变量使用三层包装：StaticCell（初始化）→ CriticalSectionMutex（线程安全）→ RefCell（内部可变性）
+   - 写操作需要`&mut`引用，读操作只需`&`引用
+
 ## 代码目录
 1. drivers : 外设驱动(imu, esc)
     - imu : 惯性传感器单元
@@ -44,6 +64,10 @@
         * usb_adapter.rs : 适配到USB_CDC的读取/写入
         - commands : 命令定义
             * hello.rs : 定义hello命令
+            * blink.rs : 闪灯命令
+            * go.rs : 运动控制命令
+            * motor.rs : 电机直接控制命令
+            * sensor.rs : 传感器控制命令
     - mavlink2 : mavlink2协议栈
     - sbus : sbus协议栈
     - modelica : modelica建模语言(Model Based Design)
@@ -69,18 +93,18 @@
 
 ## 无人机构型
 ```rs
-/// Quadcopter "x" configuration
+/// 四旋翼 "x" 构型
 /// ```text
-///   front
+///   正面
 /// M4     M2
 ///   \   /
 ///     |
 ///   /   \
 /// M3     M1
 /// ```
-/// where \
-/// `M1` spins CW \
-/// `M2` spins CCW \
-/// `M3` spins CCW \
-/// `M4` spins CW
+/// 解释: \
+/// `M1` spins CW(正桨) \
+/// `M2` spins CCW(反桨) \
+/// `M3` spins CCW(反桨) \
+/// `M4` spins CW(正桨)
 ```

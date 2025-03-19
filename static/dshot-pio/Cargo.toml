@@ -1,7 +1,8 @@
 [package]
 name = "dshot-pio"
-version = "0.3.0"
+version = "0.3.1"
 edition = "2021"
+authors = ["peterkrull", "qsbye"]
 
 [features]
 embassy-rp = ["dep:embassy-rp", "embassy-rp/rp2040"]
