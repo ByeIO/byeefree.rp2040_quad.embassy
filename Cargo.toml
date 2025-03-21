@@ -78,6 +78,17 @@ critical-section = { version = "1.2.0", features = [] }
 # 使用pio实现多个uart的半双工通信
 bye_rp2040_multi_uart_pio_rs = { path = "./static/bye_rp2040_multi_uart_pio_rs" }
 
+# 单元测试
+defmt-test = "0.3.3"
+
+# [dev-dependencies]
+# # 单元测试
+# defmt-test = "0.3.3"
+
+[[test]]
+name = "imu_state_machine"
+harness = false
+
 # cargo build/run
 [profile.dev]
 codegen-units = 1
@@ -121,8 +132,8 @@ debug-assertions = true
 incremental = false
 opt-level = 's'
 overflow-checks = true
-
 # cargo test --release
+
 [profile.bench]
 codegen-units = 1
 debug = 2

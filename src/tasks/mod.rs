@@ -12,3 +12,6 @@ pub mod motors;
 
 // 5. 传感器数据处理任务
 pub mod sensors;
+
+// 6. 重要函数功能测试任务
+pub mod tests;

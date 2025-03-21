@@ -10,7 +10,7 @@ use embedded_io_async::{Read, Write};
 use ufmt::uwrite;
 use heapless::String;
 use core::str::FromStr;
-use crate::shell::{UBuffer, INTERRUPT};
+use crate::{shell::{UBuffer, INTERRUPT}, utils::variables::Imu10DofDataEditor};
 
 // 异步相关
 use embassy_time::{Duration, Ticker};
@@ -68,19 +68,25 @@ impl super::CommandHandler for SensorGetEnum {
                 // 非阻塞获取IMU数据
                 let mut sub : crate::signals::ImuReadingSub = crate::signals::IMU_READING.subscriber().unwrap();
                 
-                let data = match sub.try_next_message_pure() {
-                    Some(data) => data,
-                    None => {
-                        defmt::println!("No IMU data available");
-                        return Ok(());
-                    }
-                };
+                // FIXME: 暂时使用全局变量进行数据交换
+                use crate::utils::types::sensor::Imu10DofData;
+                let imu_data : Imu10DofData<f32> = Imu10DofDataEditor::get_data().await;
+                
+                // let data = match sub.try_next_message_pure() {
+                //     Some(data) => data,
+                //     None => {
+                //         defmt::error!("No IMU data available");
+                //         return Ok(());
+                //     }
+                // };
 
                 // 使用UBuffer格式化数据
                 let mut buf = UBuffer::<128>::new();
+                
+                uwrite!(&mut buf, "imu: ")?;
 
                 // 格式化陀螺仪数据
-                for (i, &val) in data.gyr.iter().enumerate() {
+                for (i, &val) in imu_data.gyr.iter().enumerate() {
                     if i > 0 {
                         uwrite!(&mut buf, " ")?;
                     }
@@ -89,7 +95,7 @@ impl super::CommandHandler for SensorGetEnum {
                 uwrite!(&mut buf, " ")?;
 
                 // 格式化加速度计数据
-                for (i, &val) in data.acc.iter().enumerate() {
+                for (i, &val) in imu_data.acc.iter().enumerate() {
                     if i > 0 {
                         uwrite!(&mut buf, " ")?;
                 }
@@ -98,7 +104,7 @@ impl super::CommandHandler for SensorGetEnum {
                 uwrite!(&mut buf, " ")?;
 
                 // 格式化磁力计数据
-                for (i, &val) in data.mag.iter().enumerate() {
+                for (i, &val) in imu_data.mag.iter().enumerate() {
                     if i > 0 {
                         uwrite!(&mut buf, " ")?;
                     }
@@ -107,7 +113,7 @@ impl super::CommandHandler for SensorGetEnum {
                 uwrite!(&mut buf, " ")?;
 
                 // 格式化气压数据
-                for &val in data.pressure.iter() {
+                for &val in imu_data.pressure.iter() {
                     uwrite!(&mut buf, "{}", val as u64)?;
                 }
 

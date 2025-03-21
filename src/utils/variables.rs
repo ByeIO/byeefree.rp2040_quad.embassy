@@ -85,3 +85,43 @@ impl MotorDirectionEditor {
     }
 }
 /* end 电机方向 */
+
+/* start 10轴传感器 */
+use crate::utils::types::sensor::Imu10DofData;
+// 10轴传感器数据，使用异步Mutex保护
+static IMU_10DOF_DATA: Mutex<ThreadModeRawMutex, Imu10DofData<f32>> = Mutex::new(Imu10DofData {
+    gyr: [0.0; 3],
+    acc: [0.0; 3],
+    mag: [0.0; 3],
+    pressure: [0.0; 1],
+    quat: [0.0; 4],
+    attitude: [0.0; 1],
+    temperature: [0.0; 1],
+});
+
+/// 10轴传感器数据操作接口
+pub struct Imu10DofDataEditor;
+
+impl Imu10DofDataEditor {
+    /// 异步获取10轴传感器数据（拷贝值返回）
+    pub async fn get_data() -> Imu10DofData<f32> {
+        let guard = IMU_10DOF_DATA.lock().await;
+        *guard
+    }
+
+    /// 异步更新全部10轴传感器数据
+    pub async fn write_data(data: Imu10DofData<f32>) {
+        let mut guard = IMU_10DOF_DATA.lock().await;
+        *guard = data;
+    }
+
+    /// 异步更新单个传感器数据字段
+    pub async fn update_field<F>(update_fn: F)
+    where
+        F: FnOnce(&mut Imu10DofData<f32>),
+    {
+        let mut guard = IMU_10DOF_DATA.lock().await;
+        update_fn(&mut *guard);
+    }
+}
+/* end 10轴传感器 */

@@ -60,6 +60,22 @@ impl From<AtkMs901mFrameUploadId> for u8 {
     }
 }
 
+impl TryFrom<u8> for AtkMs901mFrameUploadId {
+    type Error = ();
+
+    fn try_from(value: u8) -> Result<Self, Self::Error> {
+        match value {
+            0x01 => Ok(AtkMs901mFrameUploadId::Attitude),
+            0x02 => Ok(AtkMs901mFrameUploadId::Quat),
+            0x03 => Ok(AtkMs901mFrameUploadId::GyroAcce),
+            0x04 => Ok(AtkMs901mFrameUploadId::Mag),
+            0x05 => Ok(AtkMs901mFrameUploadId::Baro),
+            0x06 => Ok(AtkMs901mFrameUploadId::Port),
+            _ => Err(()),
+        }
+    }
+}
+
 /// 应答帧ID枚举
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -116,27 +132,20 @@ pub enum AtkMs901mFrameAckId {
     RegReset = 0x7F,
 }
 
-/// uart通讯帧头枚举
+/// uart通讯帧头枚举, 
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum AtkMs901mFrameHeader {
     /// 低位
-    // L = self.UploadH,
+    // L = 0x55,
     
+    // 主动上传帧头: 0x55 0x55
     /// 高位主动上传帧头
     UploadH = 0x55,
+    
+    // 应答帧头: 0x55 0xAF
     /// 高位应答帧头
     AckH = 0xAF,
-}
-
-impl AtkMs901mFrameHeader {
-    pub fn verify(id_type: u8) -> u8 {
-        match id_type {
-            ATK_MS901M_FRAME_ID_TYPE_UPLOAD => 0x55,  
-            ATK_MS901M_FRAME_ID_TYPE_ACK => 0xAF,     
-            _ => panic!("Invalid frame type"),
-        }
-    }
 }
 
 /// LED状态枚举

@@ -7,6 +7,7 @@ use super::frame_state_machine::FrameStateMachine;
 
 /// 类型定义
 use super::super::defines::*;
+use crate::types::sensor::Imu10DofData;
 
 /// 模块交互类
 pub struct AtkMs901m {
@@ -21,36 +22,169 @@ impl AtkMs901m {
         AtkMs901m { uart }
     }
     
-    /// 基于DMA的异步UART帧接收函数（增强版）
-    /// 特点：
-    /// 1. 使用DMA批量传输特性
-    /// 2. Embassy异步定时器精确控制
-    /// 3. 全状态错误恢复机制
+    /// 从DMA缓存区中提取所有有效帧
+    pub async fn get_all_valid_frames(
+        &mut self,
+        frames: &mut [AtkMs901mFrame; 32],
+    ) -> usize {
+        // 状态机
+        let mut state_machine = FrameStateMachine::new();
+        let mut dma_buffer = [0u8; 512];
+        // 获取DMA缓存区数据
+        let _ = self.uart.read(&mut dma_buffer).await;
+        
+        // 打印DMA数据
+        // defmt::println!("\n==============");
+        // defmt::println!("imu : get_all_valid_frames -> buffer:\n{}", dma_buffer);
+        // defmt::println!("\n==============");
+        
+        // 使用状态机循环提取有效帧到frames直到缓存区最后
+        let frame_index = Self::find_all_valid_frames(&dma_buffer, &mut state_machine, frames).await;
+        
+        // 打印获取到的总数量
+        defmt::println!("imu : get_all_valid_frames -> total: {} frames", frame_index);
+        // 返回有效帧数量
+        frame_index
+    }
+    
+    /// 寻找buffer中所有有效帧
+    pub async fn find_all_valid_frames(
+        dma_buffer: &[u8],
+        state_machine: &mut FrameStateMachine,
+        frames: &mut [AtkMs901mFrame],
+    ) -> usize {
+        let mut frame_index: usize = 0;
+        
+        for byte in dma_buffer {
+            // 处理每个字节
+            if let Some(result) = state_machine.process_byte(*byte, 1, 1) {
+                match result {
+                    Ok(frame) => {
+                        // 将有效帧添加到frames数组中
+                        if frame_index < frames.len() {
+                            frames[frame_index] = frame;
+                            frame_index += 1;
+                        } else {
+                            // 如果frames数组已满，停止处理
+                            break;
+                        }
+                    }
+                    Err(_) => {
+                        // 校验和错误，忽略该帧
+                        continue;
+                    }
+                }
+            }
+        }
+        
+        // 返回有效帧数量
+        frame_index
+    }
+    
+    /// 处理帧数据并组合为IMU数据
+    pub async fn process_frames_and_combine_data(
+        &mut self,
+        frames: &[AtkMs901mFrame],
+        frame_num: usize,
+        gyro_data: &mut AtkMs901mGyroData,
+        accel_data: &mut AtkMs901mAccelerometerData,
+        mag_data: &mut AtkMs901mMagnetometerData,
+        baro_data: &mut AtkMs901mBarometerData,
+        quat_data: &mut AtkMs901mQuaternionData,
+    ) -> Imu10DofData<f32> {
+        // 遍历所有有效帧
+        for frame in frames[..frame_num].iter() {
+            // 判断frame id
+            if let Ok(frame_id) = frame.id.try_into() {
+                match frame_id {
+                    AtkMs901mFrameUploadId::Attitude => {
+                        // 海拔数据
+                        baro_data.altitude = frame.dat[0] as i32;
+                    },
+                    AtkMs901mFrameUploadId::Quat => {
+                        // 四元数
+                        quat_data.q0 = frame.dat[0] as f32;
+                        quat_data.q1 = frame.dat[1] as f32;
+                        quat_data.q2 = frame.dat[2] as f32;
+                        quat_data.q3 = frame.dat[3] as f32;
+                    }
+                    AtkMs901mFrameUploadId::GyroAcce => {
+                        // 陀螺仪和加速度计数据
+                        gyro_data.x = frame.dat[0] as f32;
+                        gyro_data.y = frame.dat[1] as f32;
+                        gyro_data.z = frame.dat[2] as f32;
+                        accel_data.x = frame.dat[3] as f32;
+                        accel_data.y = frame.dat[4] as f32;
+                        accel_data.z = frame.dat[5] as f32;
+                    }
+                    AtkMs901mFrameUploadId::Mag => {
+                        // 磁力计
+                        mag_data.x = frame.dat[0] as i16;
+                        mag_data.y = frame.dat[1] as i16;
+                        mag_data.z = frame.dat[2] as i16;
+                    }
+                    AtkMs901mFrameUploadId::Baro => {
+                        // 气压计
+                        baro_data.pressure = frame.dat[0] as i32;
+                        baro_data.temperature = frame.dat[1] as f32;
+                    }
+                    // 忽略端口数据
+                    _ => {
+                        // pass
+                    }
+                }
+            }
+        }
+    
+        // 组合IMU数据并返回
+        Imu10DofData {
+            gyr: [gyro_data.x, gyro_data.y, gyro_data.z],
+            acc: [accel_data.x, accel_data.y, accel_data.z],
+            mag: [mag_data.x as f32, mag_data.y as f32, mag_data.z as f32],
+            pressure: [baro_data.pressure as f32],
+            quat: [quat_data.q0, quat_data.q1, quat_data.q2, quat_data.q3],
+            attitude: [baro_data.altitude as f32],
+            temperature: [baro_data.temperature],
+        }
+    }
+    
+    /// 从DMA缓存区中获取指定的帧
     pub async fn get_frame_by_id(
         &mut self,
         frame: &mut AtkMs901mFrame,
         id: u8,
-        id_type: u8,
+        frame_type: u8,
         timeout_ms: u32,
-    ) -> Result<(), AtkMs901mError> {
+    ) -> Result<AtkMs901mFrame, AtkMs901mError> {
         let mut state_machine = FrameStateMachine::new();
         let mut buffer = [0u8; 256]; // DMA缓冲区（根据UART FIFO深度调整）
         let deadline = embassy_time::Instant::now() + embassy_time::Duration::from_millis(timeout_ms as u64);
     
-        // 主接收循环
+        // 循环读取DMA缓存区
         loop {
             // 异步等待数据到达（DMA传输完成）
             match self.uart.read(&mut buffer).await {
                 Ok(_) => {
-                    // 关键点：逐字节处理DMA缓冲区
+                    // 打印DMA数据
+                    defmt::println!("\n==============");
+                    // defmt::println!("imu : get_frame_by_id -> read :\n{}\n{}", buffer, core::str::from_utf8(&buffer).unwrap());
+                    defmt::println!("imu : get_frame_by_id -> read :\n{}", buffer);
+                    defmt::println!("\n==============");
+                    
+                    // 逐个字节处理DMA缓存区
                     for &byte in &buffer {
-                        if let Some(result) = state_machine.process_byte(byte, id, id_type) {
+                        if let Some(result) = state_machine.process_byte(byte, id, frame_type) {
                             *frame = state_machine.frame;
+                            // 返回状态机处理结果
                             return result;
                         }
                     }
                 }
-                Err(e) => return Err(e.into()),
+                Err(e) => {
+                    defmt::println!("imu : get_frame_by_id {} err", id);
+                    return Err(e.into())
+                },
+                
             }
     
             // 超时检查
@@ -86,7 +220,11 @@ impl AtkMs901m {
         .wrapping_add(buf[4]);
         
         // 发送请求
-        if self.uart.write(&buf[..6]).await.is_ok(){};
+        if self.uart.write(&buf[..6]).await.is_ok(){
+            defmt::println!("imu : read_reg_by_id -> write ok");
+        }else{
+            defmt::println!("imu : read_reg_by_id -> write err");
+        }
 
         if self.get_frame_by_id(&mut frame, id, ATK_MS901M_FRAME_ID_TYPE_ACK, timeout).await.is_ok() {
             for (i, &val) in frame.dat.iter().enumerate().take(frame.len as usize) {
@@ -145,7 +283,8 @@ impl AtkMs901m {
     /// 初始化传感器
     pub async fn init(&mut self, baudrate: u32) -> Result<(), AtkMs901mError> {
         
-        // self.uart.init(baudrate);
+        // 打印调试信息
+        defmt::println!("hello from imu init");
 
         let mut fsr = AtkMs901mFsr::default();
         if self.read_reg_by_id(

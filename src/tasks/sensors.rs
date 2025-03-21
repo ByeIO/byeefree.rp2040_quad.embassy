@@ -109,49 +109,41 @@ pub async fn sensor_imu_task(
 
     // 初始化传感器
     let mut sensor = AtkMs901m::new(uart1).await;
-    if let Err(e) = sensor.init(115_200).await {
-        defmt::error!("[sensor] UART config error");
-    }
+    
     // 传感器数据结构初始化
     let mut gyro_data = AtkMs901mGyroData::default();
     let mut accel_data = AtkMs901mAccelerometerData::default();
     let mut mag_data = AtkMs901mMagnetometerData::default();
     let mut baro_data = AtkMs901mBarometerData::default();
+    let mut quat_data = AtkMs901mQuaternionData::default();
     
     loop {
-        // 获取陀螺仪和加速度计数据
-        let gyro_acce_result = sensor.get_gyro_accelerometer(
-            Some(&mut gyro_data),
-            Some(&mut accel_data),
-            500
-        ).await;
-
-        // 获取磁力计数据
-        let mag_result = sensor.get_magnetometer(
-            &mut mag_data,
-            500
-        ).await;
-
-        // 获取气压计数据
-        let baro_result = sensor.get_barometer(
-            &mut baro_data,
-            500
-        ).await;
-
-        // 组合并发布数据
-        if gyro_acce_result.is_ok() && mag_result.is_ok() && baro_result.is_ok() {
-            let imu_data = Imu10DofData {
-                gyr: [gyro_data.x, gyro_data.y, gyro_data.z],
-                acc: [accel_data.x, accel_data.y, accel_data.z],
-                mag: [mag_data.x as f32, mag_data.y as f32, mag_data.z as f32],
-                pressure: [baro_data.pressure as f32],
-            };
+        let mut frames : [AtkMs901mFrame; 32] = [AtkMs901mFrame::default(); 32];
+        // 获取所有有效帧
+        let frame_num = sensor.get_all_valid_frames(&mut frames).await;
+        if frame_num > 0{
+            // 调用封装函数处理帧数据并组合为IMU数据
+            let imu_data = sensor.process_frames_and_combine_data(
+                &frames,
+                frame_num,
+                &mut gyro_data,
+                &mut accel_data,
+                &mut mag_data,
+                &mut baro_data,
+                &mut quat_data,
+            ).await;
             
             out_imu_reading.publish_immediate(imu_data);
-        } else {
-            defmt::warn!("[sensor] Partial data loss");
-        }
-
+            
+            // FIXME: 暂时使用全局变量交换数据
+            use crate::utils::variables::Imu10DofDataEditor;
+            Imu10DofDataEditor::write_data(imu_data).await;
+            
+            defmt::println!("sensor_imu_task publish data ok");
+            defmt::error!("imu_data: {}", imu_data);
+            
+        }// end if
+        
         // 维持2Hz发布速率
         embassy_time::Timer::after(embassy_time::Duration::from_millis(500)).await;
     }

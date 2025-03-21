@@ -6,5 +6,8 @@ pub mod defines;
 // 2. 工具函数
 pub mod utils;
 
-// 3. 模块交互代码
+// 3. 模块交互
 pub mod functions;
+
+// 4. 模块测试
+pub mod tests;

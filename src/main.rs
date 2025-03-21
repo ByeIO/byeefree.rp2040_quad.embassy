@@ -89,11 +89,10 @@ async fn main(_spawner: Spawner) {
             use embassy_rp::{uart::*,bind_interrupts,peripherals::UART1};
             bind_interrupts!(struct Uart1Irqs {UART1_IRQ => InterruptHandler<UART1>;});
             let mut uart1_config = Config::default();
-            uart1_config.baudrate = 100_000;
+            uart1_config.baudrate = 115_200;
             uart1_config.data_bits = DataBits::DataBits8;
-            uart1_config.stop_bits = StopBits::STOP2;
-            uart1_config.parity = Parity::ParityEven;
-            uart1_config.invert_rx = true;
+            uart1_config.stop_bits = StopBits::STOP1;
+            uart1_config.parity = Parity::ParityNone;
             Uart::new(p.UART1, p.PIN_4, p.PIN_5, Uart1Irqs, p.DMA_CH0, p.DMA_CH1, uart1_config)
         };
     
@@ -101,15 +100,13 @@ async fn main(_spawner: Spawner) {
             use embassy_rp::{uart::*,bind_interrupts,peripherals::UART0};
             bind_interrupts!(struct Uart0Irqs {UART0_IRQ => InterruptHandler<UART0>;});
             let mut uart0_config = Config::default();
-            uart0_config.baudrate = 100_000;
+            uart0_config.baudrate = 115_200;
             uart0_config.data_bits = DataBits::DataBits8;
-            uart0_config.stop_bits = StopBits::STOP2;
-            uart0_config.parity = Parity::ParityEven;
-            uart0_config.invert_rx = true;
+            uart0_config.stop_bits = StopBits::STOP1;
+            uart0_config.parity = Parity::ParityNone;
             Uart::new(p.UART0, p.PIN_12, p.PIN_13, Uart0Irqs, p.DMA_CH2, p.DMA_CH3, uart0_config)
         };
     // uart0.blocking_write("Hello World!\r\n".as_bytes()).unwrap();
-    
     /* end 初始化任务 */
     
     /* start 启动任务 */
@@ -167,6 +164,9 @@ async fn main(_spawner: Spawner) {
     /* end 初始化 */
     
     /* start 初始化完成 */
+    // 执行测试
+    tasks::tests::test_task().await;
+    
     // 等待稳定
     Timer::after(Duration::from_millis(2000)).await;
     // 通知blink任务切换为呼吸灯模式

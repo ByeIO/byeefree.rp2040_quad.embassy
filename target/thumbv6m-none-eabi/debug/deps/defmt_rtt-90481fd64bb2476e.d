@@ -1,0 +1,12 @@
+/Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/target/thumbv6m-none-eabi/debug/deps/libdefmt_rtt-90481fd64bb2476e.rmeta: /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/defmt-rtt-0.4.1/src/lib.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/defmt-rtt-0.4.1/src/channel.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/defmt-rtt-0.4.1/src/consts.rs /Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/target/thumbv6m-none-eabi/debug/build/defmt-rtt-1b6e2468bdc4b23e/out/consts.rs
+
+/Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/target/thumbv6m-none-eabi/debug/deps/libdefmt_rtt-90481fd64bb2476e.rlib: /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/defmt-rtt-0.4.1/src/lib.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/defmt-rtt-0.4.1/src/channel.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/defmt-rtt-0.4.1/src/consts.rs /Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/target/thumbv6m-none-eabi/debug/build/defmt-rtt-1b6e2468bdc4b23e/out/consts.rs
+
+/Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/target/thumbv6m-none-eabi/debug/deps/defmt_rtt-90481fd64bb2476e.d: /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/defmt-rtt-0.4.1/src/lib.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/defmt-rtt-0.4.1/src/channel.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/defmt-rtt-0.4.1/src/consts.rs /Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/target/thumbv6m-none-eabi/debug/build/defmt-rtt-1b6e2468bdc4b23e/out/consts.rs
+
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/defmt-rtt-0.4.1/src/lib.rs:
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/defmt-rtt-0.4.1/src/channel.rs:
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/defmt-rtt-0.4.1/src/consts.rs:
+/Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/target/thumbv6m-none-eabi/debug/build/defmt-rtt-1b6e2468bdc4b23e/out/consts.rs:
+
+# env-dep:OUT_DIR=/Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/target/thumbv6m-none-eabi/debug/build/defmt-rtt-1b6e2468bdc4b23e/out
