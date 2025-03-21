@@ -9,3 +9,6 @@ pub mod shell_cli;
 
 // 4. 电机控制任务
 pub mod motors;
+
+// 5. 传感器数据处理任务
+pub mod sensors;

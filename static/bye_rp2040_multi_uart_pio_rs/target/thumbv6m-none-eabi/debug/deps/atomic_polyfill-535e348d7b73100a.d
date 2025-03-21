@@ -1,0 +1,9 @@
+/Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/static/bye_rp2040_multi_uart_pio_rs/target/thumbv6m-none-eabi/debug/deps/libatomic_polyfill-535e348d7b73100a.rmeta: /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/atomic-polyfill-1.0.3/src/lib.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/atomic-polyfill-1.0.3/src/polyfill.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/atomic-polyfill-1.0.3/src/../README.md
+
+/Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/static/bye_rp2040_multi_uart_pio_rs/target/thumbv6m-none-eabi/debug/deps/libatomic_polyfill-535e348d7b73100a.rlib: /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/atomic-polyfill-1.0.3/src/lib.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/atomic-polyfill-1.0.3/src/polyfill.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/atomic-polyfill-1.0.3/src/../README.md
+
+/Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/static/bye_rp2040_multi_uart_pio_rs/target/thumbv6m-none-eabi/debug/deps/atomic_polyfill-535e348d7b73100a.d: /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/atomic-polyfill-1.0.3/src/lib.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/atomic-polyfill-1.0.3/src/polyfill.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/atomic-polyfill-1.0.3/src/../README.md
+
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/atomic-polyfill-1.0.3/src/lib.rs:
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/atomic-polyfill-1.0.3/src/polyfill.rs:
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/atomic-polyfill-1.0.3/src/../README.md:

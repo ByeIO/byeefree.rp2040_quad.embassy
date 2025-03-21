@@ -86,39 +86,45 @@ pub async fn motor_task(
     loop{
         // 1. 根据转速信号调整电机
         /// 获取电机转速
-        let mut motor_speed = in_motor_speed.next_message_pure().await;
-        let (m1, m2, m3, m4) = motor_speed;
-        
-        /// 更新全局变量
-        crate::utils::variables::MotorSpeedEditor::write_speeds(
-            [m1.unwrap_or(0),m2.unwrap_or(0),m3.unwrap_or(0),m4.unwrap_or(0)]
-        ).await;
-        
-        /// 发送到电调
-        out_pio_motors.throttle_clamp([
-            m1.unwrap_or(0),
-            m2.unwrap_or(0),
-            m3.unwrap_or(0),
-            m4.unwrap_or(0)
-        ]);
+        if let Some(motor_speed) = in_motor_speed.try_next_message_pure(){
+            let (m1, m2, m3, m4) = motor_speed;
+            
+            /// 更新全局变量
+            crate::utils::variables::MotorSpeedEditor::write_speeds(
+                [m1.unwrap_or(0),m2.unwrap_or(0),m3.unwrap_or(0),m4.unwrap_or(0)]
+            ).await;
+            
+            /// 发送到电调
+            out_pio_motors.throttle_clamp([
+                m1.unwrap_or(0),
+                m2.unwrap_or(0),
+                m3.unwrap_or(0),
+                m4.unwrap_or(0)
+            ]);
+        }
         
         // 2. 根据方向给电机换向
         /// 获取电机旋转方向设置
-        let mut motor_dir = in_motor_direction.next_message_pure().await;
-        let (m1_, m2_, m3_, m4_) = motor_dir;
-        /// 更新全局变量
-        crate::utils::variables::MotorDirectionEditor::write_directions(
-            [m1_.unwrap_or(true),m2_.unwrap_or(true),m3_.unwrap_or(true),m4_.unwrap_or(true)]
-        ).await;
-        
-        /// 发送到电调
-        out_pio_motors.reverse([
-            m1_.unwrap_or(true),
-            m2_.unwrap_or(true),
-            m3_.unwrap_or(true),
-            m4_.unwrap_or(true)
-        ]);
-        
+        // let mut motor_dir = in_motor_direction.next_message_pure().await;
+        if let Some(motor_dir) = in_motor_direction.try_next_message_pure(){
+            let (m1_, m2_, m3_, m4_) = motor_dir;
+            /// 更新全局变量
+            crate::utils::variables::MotorDirectionEditor::write_directions(
+                [m1_.unwrap_or(true),m2_.unwrap_or(true),m3_.unwrap_or(true),m4_.unwrap_or(true)]
+            ).await;
+            
+            /// 发送到电调
+            out_pio_motors.reverse([
+                m1_.unwrap_or(true),
+                m2_.unwrap_or(true),
+                m3_.unwrap_or(true),
+                m4_.unwrap_or(true)
+            ]);
+        }else{
+            // 留出时间给其他任务执行, 不能一直占用cpu
+            Timer::after(Duration::from_millis(50)).await;
+        }
+
     }
 }
 
@@ -149,27 +155,36 @@ pub async fn motor_test_task(
         
         // 1. 依次旋转四个电机
         signals::MOTOR_SPEED.publisher().unwrap().publish_immediate((Some(30), Some(0), Some(0), Some(0)));
-        Timer::after(Duration::from_millis(3000)).await;
+        Timer::after(Duration::from_millis(2000)).await;
         signals::MOTOR_SPEED.publisher().unwrap().publish_immediate((Some(0), Some(30), Some(0), Some(0)));
-        Timer::after(Duration::from_millis(3000)).await;
+        Timer::after(Duration::from_millis(2000)).await;
         signals::MOTOR_SPEED.publisher().unwrap().publish_immediate((Some(0), Some(0), Some(30), Some(0)));
-        Timer::after(Duration::from_millis(3000)).await;
+        Timer::after(Duration::from_millis(2000)).await;
         signals::MOTOR_SPEED.publisher().unwrap().publish_immediate((Some(0), Some(0), Some(0), Some(30)));
-        Timer::after(Duration::from_millis(3000)).await;
+        Timer::after(Duration::from_millis(2000)).await;
         
         defmt::println!("done: motor_test");
         
         // 2. 保持慢速旋转, 需要一直发布信号
         loop{
-            if state == MotorState::READY {
+            if let Some(state2) = in_motor_state.try_next_message_pure(){
+                if state2 == MotorState::READY {
+                    signals::MOTOR_SPEED.publisher().unwrap().publish_immediate((Some(10), Some(10), Some(10), Some(10)));
+                    // 留出时间给其他任务执行, 不能一直占用cpu
+                    Timer::after(Duration::from_millis(500)).await;
+                }else{
+                    defmt::println!("done: motor_ready");
+                    // 退出loop循环
+                    break;
+                }// end else
+            }// end if let Some
+            else{
                 signals::MOTOR_SPEED.publisher().unwrap().publish_immediate((Some(10), Some(10), Some(10), Some(10)));
                 // 留出时间给其他任务执行, 不能一直占用cpu
                 Timer::after(Duration::from_millis(500)).await;
-            }else{
-                defmt::println!("done: motor_ready");
-                break;
-            }
-        }
+            }// end else
+            
+        }// end loop
         
     }
 }

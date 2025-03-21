@@ -1,0 +1,10 @@
+/Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/static/bye_rp2040_multi_uart_pio_rs/target/debug/deps/libsiphasher-276bd0adb81aea5f.rmeta: /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/siphasher-1.0.1/src/lib.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/siphasher-1.0.1/src/sip.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/siphasher-1.0.1/src/sip128.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/siphasher-1.0.1/src/../README.md
+
+/Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/static/bye_rp2040_multi_uart_pio_rs/target/debug/deps/libsiphasher-276bd0adb81aea5f.rlib: /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/siphasher-1.0.1/src/lib.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/siphasher-1.0.1/src/sip.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/siphasher-1.0.1/src/sip128.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/siphasher-1.0.1/src/../README.md
+
+/Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/static/bye_rp2040_multi_uart_pio_rs/target/debug/deps/siphasher-276bd0adb81aea5f.d: /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/siphasher-1.0.1/src/lib.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/siphasher-1.0.1/src/sip.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/siphasher-1.0.1/src/sip128.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/siphasher-1.0.1/src/../README.md
+
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/siphasher-1.0.1/src/lib.rs:
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/siphasher-1.0.1/src/sip.rs:
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/siphasher-1.0.1/src/sip128.rs:
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/siphasher-1.0.1/src/../README.md:

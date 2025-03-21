@@ -1,0 +1,10 @@
+/Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/static/bye_rp2040_multi_uart_pio_rs/target/debug/deps/liblog-621b4304bf25842c.rmeta: /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/log-0.4.26/src/lib.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/log-0.4.26/src/macros.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/log-0.4.26/src/serde.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/log-0.4.26/src/__private_api.rs
+
+/Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/static/bye_rp2040_multi_uart_pio_rs/target/debug/deps/liblog-621b4304bf25842c.rlib: /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/log-0.4.26/src/lib.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/log-0.4.26/src/macros.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/log-0.4.26/src/serde.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/log-0.4.26/src/__private_api.rs
+
+/Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/static/bye_rp2040_multi_uart_pio_rs/target/debug/deps/log-621b4304bf25842c.d: /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/log-0.4.26/src/lib.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/log-0.4.26/src/macros.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/log-0.4.26/src/serde.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/log-0.4.26/src/__private_api.rs
+
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/log-0.4.26/src/lib.rs:
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/log-0.4.26/src/macros.rs:
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/log-0.4.26/src/serde.rs:
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/log-0.4.26/src/__private_api.rs:

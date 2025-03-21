@@ -1,0 +1,9 @@
+/Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/static/bye_rp2040_multi_uart_pio_rs/target/thumbv6m-none-eabi/debug/deps/libembedded_hal_nb-f231c2ec7a88bf4d.rmeta: /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/embedded-hal-nb-1.0.0/src/lib.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/embedded-hal-nb-1.0.0/src/serial.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/embedded-hal-nb-1.0.0/src/spi.rs
+
+/Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/static/bye_rp2040_multi_uart_pio_rs/target/thumbv6m-none-eabi/debug/deps/libembedded_hal_nb-f231c2ec7a88bf4d.rlib: /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/embedded-hal-nb-1.0.0/src/lib.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/embedded-hal-nb-1.0.0/src/serial.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/embedded-hal-nb-1.0.0/src/spi.rs
+
+/Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/static/bye_rp2040_multi_uart_pio_rs/target/thumbv6m-none-eabi/debug/deps/embedded_hal_nb-f231c2ec7a88bf4d.d: /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/embedded-hal-nb-1.0.0/src/lib.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/embedded-hal-nb-1.0.0/src/serial.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/embedded-hal-nb-1.0.0/src/spi.rs
+
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/embedded-hal-nb-1.0.0/src/lib.rs:
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/embedded-hal-nb-1.0.0/src/serial.rs:
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/embedded-hal-nb-1.0.0/src/spi.rs:

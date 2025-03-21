@@ -95,7 +95,7 @@ pub enum BlinkMode {
 
 // embassy任务
 #[embassy_executor::task]
-pub async fn blink(
+pub async fn blink_task(
     // 订阅blink模式
     mut in_blink_mode : signals::BlinkModeSub,
     mut pin : PIN_25,

@@ -1,0 +1,4 @@
+cargo:rustc-link-search=/Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/target/thumbv6m-none-eabi/release/build/embassy-rp-a70b01da799f825c/out
+cargo:rerun-if-changed=build.rs
+cargo:rerun-if-changed=link-rp.x.in
+cargo::rustc-check-cfg=cfg(has_fpu)

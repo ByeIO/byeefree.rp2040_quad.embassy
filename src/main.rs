@@ -1,5 +1,6 @@
 #![allow(unused_variables)]
 #![allow(unused_imports)]
+#![allow(unused_mut)]
 
 #![no_std]
 #![no_main]
@@ -82,12 +83,39 @@ async fn main(_spawner: Spawner) {
                 dshot_pio::cal_clock_div(120_000_000, dshot_pio::ShotType::DSHOT600),
             )
     };
+    
+    // 3. 初始化uart串口(使用DMA实现异步)
+    let uart1 = {
+            use embassy_rp::{uart::*,bind_interrupts,peripherals::UART1};
+            bind_interrupts!(struct Uart1Irqs {UART1_IRQ => InterruptHandler<UART1>;});
+            let mut uart1_config = Config::default();
+            uart1_config.baudrate = 100_000;
+            uart1_config.data_bits = DataBits::DataBits8;
+            uart1_config.stop_bits = StopBits::STOP2;
+            uart1_config.parity = Parity::ParityEven;
+            uart1_config.invert_rx = true;
+            Uart::new(p.UART1, p.PIN_4, p.PIN_5, Uart1Irqs, p.DMA_CH0, p.DMA_CH1, uart1_config)
+        };
+    
+    let uart0 = {
+            use embassy_rp::{uart::*,bind_interrupts,peripherals::UART0};
+            bind_interrupts!(struct Uart0Irqs {UART0_IRQ => InterruptHandler<UART0>;});
+            let mut uart0_config = Config::default();
+            uart0_config.baudrate = 100_000;
+            uart0_config.data_bits = DataBits::DataBits8;
+            uart0_config.stop_bits = StopBits::STOP2;
+            uart0_config.parity = Parity::ParityEven;
+            uart0_config.invert_rx = true;
+            Uart::new(p.UART0, p.PIN_12, p.PIN_13, Uart0Irqs, p.DMA_CH2, p.DMA_CH3, uart0_config)
+        };
+    // uart0.blocking_write("Hello World!\r\n".as_bytes()).unwrap();
+    
     /* end 初始化任务 */
     
     /* start 启动任务 */
     // 1. 启动blink任务
-    use crate::tasks::blink::blink;
-    _spawner.must_spawn(blink(
+    use crate::tasks::blink::blink_task;
+    _spawner.must_spawn(blink_task(
         signals::BLINK_MODE.subscriber().unwrap(),
         p.PIN_25,
         p.PWM_SLICE4
@@ -106,7 +134,34 @@ async fn main(_spawner: Spawner) {
     
     // 4. 启动电机测试任务
     _spawner.must_spawn(tasks::motors::motor_test_task(signals::MOTOR_STATE.subscriber().unwrap()));
-
+    
+    // 5. 启动传感器数据采集任务
+    use crate::tasks::sensors::sensor_task_launcher;
+    use embassy_rp::{pio::*,bind_interrupts,peripherals::PIO1};
+    bind_interrupts!(pub struct Pio1Irqs {PIO1_IRQ_0 => InterruptHandler<PIO1>;});
+    // 通过工具函数启动传感器子任务
+    sensor_task_launcher(
+        &_spawner,
+        // pio
+        p.PIO1, 
+        // 串口
+        uart0,
+        uart1,
+        // 十轴传感器(实际上用的是uart1)
+        p.PIN_9,
+        p.PIN_22,
+        // 光流传感器
+        p.PIN_11,
+        p.PIN_10,
+        // 距离传感器(实际上用的是uart0)
+        p.PIN_6,
+        p.PIN_7,
+        // 备用接口
+        p.PIN_26,
+        p.PIN_27,
+        // 微空飞控塔(预留)
+        p.PIN_2,
+    ).await;
     /* end 启动任务 */
     
     /* end 初始化 */

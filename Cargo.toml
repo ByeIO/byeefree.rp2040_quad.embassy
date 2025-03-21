@@ -17,6 +17,8 @@ cortex-m-rt = "0.7"
 defmt = "0.3"
 defmt-rtt = "0.4"
 panic-probe = { version = "0.3", features = ["print-defmt"] }
+postcard = { version = "1.0.10" }
+serde = { version = "1.0", default-features = false, features = ["derive"] }
 
 # embassy嵌入式异步框架相关
 embassy-embedded-hal = { version = "0.3", features = ["defmt"] }
@@ -72,6 +74,9 @@ heapless = { version = "0.8.0", features = ["portable-atomic"] }
 
 # 临界区访问
 critical-section = { version = "1.2.0", features = [] }
+
+# 使用pio实现多个uart的半双工通信
+bye_rp2040_multi_uart_pio_rs = { path = "./static/bye_rp2040_multi_uart_pio_rs" }
 
 # cargo build/run
 [profile.dev]

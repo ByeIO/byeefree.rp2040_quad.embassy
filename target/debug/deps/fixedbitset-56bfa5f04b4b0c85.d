@@ -1,0 +1,10 @@
+/Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/target/debug/deps/libfixedbitset-56bfa5f04b4b0c85.rmeta: /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fixedbitset-0.5.7/src/lib.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fixedbitset-0.5.7/src/block/mod.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fixedbitset-0.5.7/src/block/default.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fixedbitset-0.5.7/src/range.rs
+
+/Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/target/debug/deps/libfixedbitset-56bfa5f04b4b0c85.rlib: /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fixedbitset-0.5.7/src/lib.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fixedbitset-0.5.7/src/block/mod.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fixedbitset-0.5.7/src/block/default.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fixedbitset-0.5.7/src/range.rs
+
+/Users/workspace/Desktop/projects/ByeIO/software/exp205-rust-rp2040-quad-embassy/target/debug/deps/fixedbitset-56bfa5f04b4b0c85.d: /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fixedbitset-0.5.7/src/lib.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fixedbitset-0.5.7/src/block/mod.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fixedbitset-0.5.7/src/block/default.rs /Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fixedbitset-0.5.7/src/range.rs
+
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fixedbitset-0.5.7/src/lib.rs:
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fixedbitset-0.5.7/src/block/mod.rs:
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fixedbitset-0.5.7/src/block/default.rs:
+/Users/workspace/.cargo/registry/src/index.crates.io-6f17d22bba15001f/fixedbitset-0.5.7/src/range.rs:

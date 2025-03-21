@@ -75,7 +75,8 @@ impl<const N: usize> Deref for UBuffer<N> {
 // 实现从 &UBuffer 到 &str 的显式转换
 impl<'a, const N: usize> From<&'a UBuffer<N>> for &'a str {
     fn from(buffer: &'a UBuffer<N>) -> Self {
-        buffer.deref() // 生命周期通过 'a 显式绑定
+        // 生命周期通过 'a 显式绑定
+        buffer.deref() 
     }
 }
 

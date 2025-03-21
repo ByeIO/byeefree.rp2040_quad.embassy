@@ -1,4 +1,5 @@
 #![allow(dead_code)]
+#![allow(non_camel_case_types)]
 
 /*
 此固件上常用的通信信道类型是Embassy PubSubChannel。
@@ -12,6 +13,7 @@ use embassy_sync::{
     pubsub::{PubSubChannel,Publisher,Subscriber},
     blocking_mutex::raw::{CriticalSectionRawMutex, RawMutex}
 };
+use embassy_sync::watch::Watch;
 
 // 从信道中获取存在的数据并向变量赋值, 注意信道容量
 pub fn try_assign_from_channel<const CAP : usize, const SUBS : usize, const PUBS : usize, M:RawMutex, T:Clone>
@@ -72,3 +74,13 @@ pub type MotorStateType = crate::tasks::motors::MotorState;
 pub type MotorStatePub = Pub<MotorStateType,MOTOR_STATE_NUM>;
 pub type MotorStateSub = Sub<MotorStateType,MOTOR_STATE_NUM>;
 pub static MOTOR_STATE : Ch<MotorStateType,MOTOR_STATE_NUM> = PubSubChannel::new();
+
+// 3. sensors任务的信道
+// pub static RAW_IMU_DATA: Watch<Imu6DofData<f32>> = Watch::new();
+// pub static RAW_MAG_DATA: Watch<Imu9DofData<f32>> = Watch::new();
+/// 十轴传感器信道
+const IMU_READING_NUM: usize = 2;
+pub type ImuReadingType = crate::types::sensor::Imu10DofData<f32>;
+pub type ImuReadingPub = Pub<ImuReadingType,IMU_READING_NUM>;
+pub type ImuReadingSub = Sub<ImuReadingType,IMU_READING_NUM>;
+pub static IMU_READING : Ch<ImuReadingType,IMU_READING_NUM> = PubSubChannel::new();

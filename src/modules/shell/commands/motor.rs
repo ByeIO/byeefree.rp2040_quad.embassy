@@ -108,7 +108,7 @@ impl super::CommandHandler for MotorSetEnum {
     ) -> Result<(), ErrorKind> {
         match self {
             MotorSetEnum::Speed{motor, speed}=>{
-                // 转换电机模式到RUNNING
+                // 转换电机模式到MANUAL
                 signals::MOTOR_STATE.publisher().unwrap().publish_immediate(crate::tasks::motors::MotorState::MANUAL);
                 
                 // TODO 检查数值合法性
@@ -121,6 +121,8 @@ impl super::CommandHandler for MotorSetEnum {
                 signals::MOTOR_SPEED.publisher().unwrap().publish_immediate(
                     (Some(speeds[0]),Some(speeds[1]),Some(speeds[2]),Some(speeds[3]))
                 );
+                
+                defmt::println!("speeds will be set to :{}", speeds);
                 
                 serial.write_all(b"ok").await?;
             },
@@ -136,6 +138,8 @@ impl super::CommandHandler for MotorSetEnum {
                 signals::MOTOR_DIR.publisher().unwrap().publish_immediate(
                     (Some(directions[0]),Some(directions[1]),Some(directions[2]),Some(directions[3]))
                 );
+                
+                defmt::println!("direction will be set to :{}", directions);
                 
                 serial.write_all(b"ok").await?;
             }
