@@ -10,7 +10,7 @@ use crate::lr1::state_graph::StateGraph;
 
 use super::table::{ConflictIndex, LaneTable};
 
-pub struct LaneTracer<'trace, 'grammar: 'trace, L: Lookahead + 'trace> {
+pub struct LaneTracer<'trace, 'grammar, L: Lookahead> {
     states: &'trace [State<'grammar, L>],
     first_sets: &'trace FirstSets,
     state_graph: &'trace StateGraph,
@@ -60,6 +60,7 @@ impl<'trace, 'grammar, L: Lookahead> LaneTracer<'trace, 'grammar, L> {
 
             Action::Reduce(prod) => {
                 let item = Item::lr0(prod, prod.symbols.len());
+                self.table.add_lookahead(state, conflict, &TokenSet::new());
                 self.continue_trace(state, conflict, item, &mut visited_set);
             }
         }
@@ -69,9 +70,10 @@ impl<'trace, 'grammar, L: Lookahead> LaneTracer<'trace, 'grammar, L> {
         &mut self,
         state: StateIndex,
         conflict: ConflictIndex,
-        item: LR0Item<'grammar>,
-        visited: &mut Set<(StateIndex, LR0Item<'grammar>)>,
+        item: Lr0Item<'grammar>,
+        visited: &mut Set<(StateIndex, Lr0Item<'grammar>)>,
     ) {
+        debug!("continue_trace:  state={:?}, index={:?}", state, item.index);
         if !visited.insert((state, item)) {
             return;
         }
@@ -90,11 +92,11 @@ impl<'trace, 'grammar, L: Lookahead> LaneTracer<'trace, 'grammar, L> {
             // reached by shifting T. Those predecessors will contain
             // an item like `X = ...p (*) T ...s`, which we will then
             // process in turn.
-            let shifted_symbol = item.production.symbols[item.index - 1].clone();
             let unshifted_item = Item {
                 index: item.index - 1,
                 ..item
             };
+            let shifted_symbol = &item.production.symbols[unshifted_item.index];
             let predecessors = self.state_graph.predecessors(state, shifted_symbol);
             for predecessor in predecessors {
                 self.table.add_successor(predecessor, state);

@@ -1,15 +1,14 @@
-//! The NFA we construct for each regex. Since the states are not
+//! The Nfa we construct for each regex. Since the states are not
 //! really of interest, we represent this just as a vector of labeled
 //! edges.
 
 use crate::lexer::re::Regex;
 use regex_syntax::hir::{
-    Anchor, Class, ClassBytesRange, ClassUnicodeRange, GroupKind, Hir, HirKind, Literal,
-    RepetitionKind, RepetitionRange,
+    Class, ClassBytesRange, ClassUnicodeRange, Hir, HirKind, Literal, Repetition,
 };
 use std::char;
 use std::fmt::{Debug, Error as FmtError, Formatter};
-use std::usize;
+use std::ops::RangeInclusive;
 
 #[cfg(test)]
 mod interpret;
@@ -18,18 +17,36 @@ mod interpret;
 mod test;
 
 #[derive(Debug)]
-pub struct NFA {
+pub struct Nfa {
     states: Vec<State>,
     edges: Edges,
 }
 
+#[allow(clippy::upper_case_acronyms)]
+#[deprecated(since = "1.0.0", note = "Use `Nfa` instead")]
+pub type NFA = Nfa;
+
 /// An edge label representing a range of characters, inclusive. Note
 /// that this range may contain some endpoints that are not valid
 /// unicode, hence we store u32.
-#[derive(Copy, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Hash, PartialEq, Eq)]
 pub struct Test {
-    pub start: u32,
-    pub end: u32,
+    range: RangeInclusive<u32>,
+}
+
+impl PartialOrd for Test {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Test {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        match self.start().cmp(&other.start()) {
+            std::cmp::Ordering::Equal => self.end().cmp(&other.end()),
+            ord => ord,
+        }
+    }
 }
 
 /// An "epsilon" edge -- no input
@@ -60,7 +77,10 @@ pub enum StateKind {
 }
 
 #[derive(Copy, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
-pub struct NFAStateIndex(usize);
+pub struct NfaStateIndex(usize);
+
+#[deprecated(since = "1.0.0", note = "Use `NfaStateIndex` instead")]
+pub type NFAStateIndex = NfaStateIndex;
 
 /// A set of edges for the state machine. Edges are kept sorted by the
 /// type of label they have. Within a vector, all edges with the same
@@ -82,37 +102,38 @@ pub struct Edges {
 
 #[derive(PartialEq, Eq)]
 pub struct Edge<L> {
-    pub from: NFAStateIndex,
+    pub from: NfaStateIndex,
     pub label: L,
-    pub to: NFAStateIndex,
+    pub to: NfaStateIndex,
 }
 
-pub const ACCEPT: NFAStateIndex = NFAStateIndex(0);
-pub const REJECT: NFAStateIndex = NFAStateIndex(1);
-pub const START: NFAStateIndex = NFAStateIndex(2);
+pub const ACCEPT: NfaStateIndex = NfaStateIndex(0);
+pub const REJECT: NfaStateIndex = NfaStateIndex(1);
+pub const START: NfaStateIndex = NfaStateIndex(2);
 
 #[derive(Debug, PartialEq, Eq)]
-pub enum NFAConstructionError {
+pub enum NfaConstructionError {
     NamedCaptures,
     NonGreedy,
-    WordBoundary,
-    LineBoundary,
-    TextBoundary,
+    LookAround,
     ByteRegex,
 }
 
-impl NFA {
-    pub fn from_re(regex: &Regex) -> Result<NFA, NFAConstructionError> {
-        let mut nfa = NFA::new();
+#[deprecated(since = "1.0.0", note = "Use `NfaConstructionError` instead")]
+pub type NFAConstructionError = NfaConstructionError;
+
+impl Nfa {
+    pub fn from_re(regex: &Regex) -> Result<Nfa, NfaConstructionError> {
+        let mut nfa = Nfa::new();
         let s0 = nfa.expr(regex, ACCEPT, REJECT)?;
         nfa.push_edge(START, Noop, s0);
         Ok(nfa)
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    // Public methods for querying an NFA
+    // Public methods for querying an Nfa
 
-    pub fn edges<L: EdgeLabel>(&self, from: NFAStateIndex) -> EdgeIterator<L> {
+    pub fn edges<L: EdgeLabel>(&self, from: NfaStateIndex) -> EdgeIterator<'_, L> {
         let vec = L::vec(&self.edges);
         let first = *L::first(&self.states[from.0]);
         EdgeIterator {
@@ -122,23 +143,23 @@ impl NFA {
         }
     }
 
-    pub fn kind(&self, from: NFAStateIndex) -> StateKind {
+    pub fn kind(&self, from: NfaStateIndex) -> StateKind {
         self.states[from.0].kind
     }
 
-    pub fn is_accepting_state(&self, from: NFAStateIndex) -> bool {
+    pub fn is_accepting_state(&self, from: NfaStateIndex) -> bool {
         self.states[from.0].kind == StateKind::Accept
     }
 
-    pub fn is_rejecting_state(&self, from: NFAStateIndex) -> bool {
+    pub fn is_rejecting_state(&self, from: NfaStateIndex) -> bool {
         self.states[from.0].kind == StateKind::Reject
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    // Private methods for building an NFA
+    // Private methods for building an Nfa
 
-    fn new() -> NFA {
-        let mut nfa = NFA {
+    fn new() -> Nfa {
+        let mut nfa = Nfa {
             states: vec![],
             edges: Edges {
                 noop_edges: vec![],
@@ -161,7 +182,7 @@ impl NFA {
         nfa
     }
 
-    fn new_state(&mut self, kind: StateKind) -> NFAStateIndex {
+    fn new_state(&mut self, kind: StateKind) -> NfaStateIndex {
         let index = self.states.len();
 
         // these edge indices will be patched later by patch_edges()
@@ -172,13 +193,13 @@ impl NFA {
             first_other_edge: usize::MAX,
         });
 
-        NFAStateIndex(index)
+        NfaStateIndex(index)
     }
 
     // pushes an edge: note that all outgoing edges from a particular
     // state should be pushed together, so that the edge vectors are
     // suitably sorted
-    fn push_edge<L: EdgeLabel>(&mut self, from: NFAStateIndex, label: L, to: NFAStateIndex) {
+    fn push_edge<L: EdgeLabel>(&mut self, from: NfaStateIndex, label: L, to: NfaStateIndex) {
         let edge_vec = L::vec_mut(&mut self.edges);
         let edge_index = edge_vec.len();
         edge_vec.push(Edge { from, label, to });
@@ -197,30 +218,18 @@ impl NFA {
     fn expr(
         &mut self,
         expr: &Hir,
-        accept: NFAStateIndex,
-        reject: NFAStateIndex,
-    ) -> Result<NFAStateIndex, NFAConstructionError> {
-        match *expr.kind() {
+        accept: NfaStateIndex,
+        reject: NfaStateIndex,
+    ) -> Result<NfaStateIndex, NfaConstructionError> {
+        match expr.kind() {
             HirKind::Empty => Ok(accept),
 
-            HirKind::Literal(ref l) => {
-                match *l {
-                    // [s0] -otherwise-> [accept]
-                    Literal::Unicode(c) => {
-                        let s0 = self.new_state(StateKind::Neither);
-                        self.push_edge(s0, Test::char(c), accept);
-                        self.push_edge(s0, Other, reject);
-                        Ok(s0)
-                    }
-                    //// Bytes are not supported
-                    Literal::Byte(b) => {
-                        let s0 = self.new_state(StateKind::Neither);
-                        self.push_edge(s0, Test::byte(b), accept);
-                        self.push_edge(s0, Other, reject);
-                        Ok(s0)
-                    }
-                }
-            }
+            HirKind::Literal(Literal(l)) => Ok(l.iter().rev().fold(accept, |accept, &b| {
+                let s0 = self.new_state(StateKind::Neither);
+                self.push_edge(s0, Test::byte(b), accept);
+                self.push_edge(s0, Other, reject);
+                s0
+            })),
 
             HirKind::Class(ref class) => {
                 match *class {
@@ -255,65 +264,50 @@ impl NFA {
 
             // currently we don't support any boundaries because
             // I was too lazy to code them up or think about them
-            HirKind::WordBoundary(_) => Err(NFAConstructionError::WordBoundary),
-            HirKind::Anchor(ref a) => match a {
-                Anchor::StartLine | Anchor::EndLine => Err(NFAConstructionError::LineBoundary),
-                Anchor::StartText | Anchor::EndText => Err(NFAConstructionError::TextBoundary),
-            },
+            // Akin to anchors or wordboundaries
+            HirKind::Look(_) => Err(NfaConstructionError::LookAround),
 
-            // currently we treat all groups the same, whether they
+            // currently we treat all capture groups the same, whether they
             // capture or not; but we don't permit named groups,
             // in case we want to give them significance in the future
-            HirKind::Group(ref g) => match g.kind {
-                GroupKind::CaptureName { .. } => Err(NFAConstructionError::NamedCaptures),
-                GroupKind::CaptureIndex(_) | GroupKind::NonCapturing => {
-                    self.expr(&g.hir, accept, reject)
-                }
+            HirKind::Capture(c) => match c.name {
+                Some(_) => Err(NfaConstructionError::NamedCaptures),
+                None => self.expr(&c.sub, accept, reject),
             },
 
-            HirKind::Repetition(ref r) => {
-                if !r.greedy {
+            HirKind::Repetition(Repetition {
+                min,
+                max,
+                greedy,
+                sub,
+            }) => {
+                if !greedy {
                     // currently we always report the longest match possible
-                    Err(NFAConstructionError::NonGreedy)
+                    Err(NfaConstructionError::NonGreedy)
                 } else {
-                    match r.kind {
-                        RepetitionKind::ZeroOrOne => self.optional_expr(&r.hir, accept, reject),
-                        RepetitionKind::ZeroOrMore => self.star_expr(&r.hir, accept, reject),
-                        RepetitionKind::OneOrMore => self.plus_expr(&r.hir, accept, reject),
-                        RepetitionKind::Range(ref range) => {
-                            match *range {
-                                RepetitionRange::Exactly(c) => {
-                                    let mut s = accept;
-                                    for _ in 0..c {
-                                        s = self.expr(&r.hir, s, reject)?;
-                                    }
-                                    Ok(s)
-                                }
-                                RepetitionRange::AtLeast(min) => {
-                                    // +---min times----+
-                                    // |                |
-                                    //
-                                    // [s0] --..e..-- [s1] --..e*..--> [accept]
-                                    //          |      |
-                                    //          |      v
-                                    //          +-> [reject]
-                                    let mut s = self.star_expr(&r.hir, accept, reject)?;
-                                    for _ in 0..min {
-                                        s = self.expr(&r.hir, s, reject)?;
-                                    }
-                                    Ok(s)
-                                }
-                                RepetitionRange::Bounded(min, max) => {
-                                    let mut s = accept;
-                                    for _ in min..max {
-                                        s = self.optional_expr(&r.hir, s, reject)?;
-                                    }
-                                    for _ in 0..min {
-                                        s = self.expr(&r.hir, s, reject)?;
-                                    }
-                                    Ok(s)
-                                }
-                            }
+                    match (min, max) {
+                        (0, Some(1)) => self.optional_expr(sub, accept, reject),
+                        (0, None) => self.star_expr(sub, accept, reject),
+                        (1, None) => self.plus_expr(sub, accept, reject),
+                        (_, Some(max)) if min == max => {
+                            (0..*max).try_fold(accept, |s, _| self.expr(sub, s, reject))
+                        }
+                        (_, Some(max)) => {
+                            let s = (*min..*max)
+                                .try_fold(accept, |s, _| self.optional_expr(sub, s, reject))?;
+                            (0..*min).try_fold(s, |s, _| self.expr(sub, s, reject))
+                        }
+                        (_, None) => {
+                            // +---min times----+
+                            // |                |
+                            //
+                            // [s0] --..e..-- [s1] --..e*..--> [accept]
+                            //          |      |
+                            //          |      v
+                            //          +-> [reject]
+                            self.star_expr(sub, accept, reject).and_then(|s| {
+                                (0..*min).try_fold(s, |s, _| self.expr(sub, s, reject))
+                            })
                         }
                     }
                 }
@@ -343,7 +337,7 @@ impl NFA {
                     .collect::<Result<Vec<_>, _>>()?;
 
                 // push edges from s0 all together so they are
-                // adjacant in the edge array
+                // adjacent in the edge array
                 for target in targets {
                     self.push_edge(s0, Noop, target);
                 }
@@ -355,9 +349,9 @@ impl NFA {
     fn optional_expr(
         &mut self,
         expr: &Hir,
-        accept: NFAStateIndex,
-        reject: NFAStateIndex,
-    ) -> Result<NFAStateIndex, NFAConstructionError> {
+        accept: NfaStateIndex,
+        reject: NfaStateIndex,
+    ) -> Result<NfaStateIndex, NfaConstructionError> {
         // [s0] ----> [accept]
         //   |           ^
         //   v           |
@@ -378,9 +372,9 @@ impl NFA {
     fn star_expr(
         &mut self,
         expr: &Hir,
-        accept: NFAStateIndex,
-        reject: NFAStateIndex,
-    ) -> Result<NFAStateIndex, NFAConstructionError> {
+        accept: NfaStateIndex,
+        reject: NfaStateIndex,
+    ) -> Result<NfaStateIndex, NfaConstructionError> {
         // [s0] ----> [accept]
         //  | ^
         //  | |
@@ -404,9 +398,9 @@ impl NFA {
     fn plus_expr(
         &mut self,
         expr: &Hir,
-        accept: NFAStateIndex,
-        reject: NFAStateIndex,
-    ) -> Result<NFAStateIndex, NFAConstructionError> {
+        accept: NfaStateIndex,
+        reject: NfaStateIndex,
+    ) -> Result<NfaStateIndex, NfaConstructionError> {
         //            [accept]
         //               ^
         //               |
@@ -480,9 +474,9 @@ impl EdgeLabel for Test {
     }
 }
 
-pub struct EdgeIterator<'nfa, L: EdgeLabel + 'nfa> {
+pub struct EdgeIterator<'nfa, L: EdgeLabel> {
     edges: &'nfa [Edge<L>],
-    from: NFAStateIndex,
+    from: NfaStateIndex,
     index: usize,
 }
 
@@ -507,71 +501,77 @@ impl<'nfa, L: EdgeLabel> Iterator for EdgeIterator<'nfa, L> {
 }
 
 impl Test {
+    pub fn new(range: RangeInclusive<u32>) -> Test {
+        Test { range }
+    }
+
+    pub fn start(&self) -> u32 {
+        *self.range.start()
+    }
+
+    pub fn end(&self) -> u32 {
+        *self.range.end()
+    }
+
     pub fn char(c: char) -> Test {
         let c = c as u32;
-        Test {
-            start: c,
-            end: c + 1,
-        }
+        Test { range: c..=c }
     }
 
     pub fn byte(b: u8) -> Test {
         let b = b as u32;
-        Test {
-            start: b,
-            end: b + 1,
-        }
+        Test { range: b..=b }
     }
 
     pub fn inclusive_range(s: char, e: char) -> Test {
         Test {
-            start: s as u32,
-            end: e as u32 + 1,
+            range: s as u32..=e as u32,
         }
     }
 
     pub fn inclusive_byte_range(s: u8, e: u8) -> Test {
         Test {
-            start: s as u32,
-            end: e as u32 + 1,
+            range: s as u32..=e as u32,
         }
     }
 
     pub fn exclusive_range(s: char, e: char) -> Test {
         Test {
-            start: s as u32,
-            end: e as u32,
+            range: s as u32..=e as u32 - 1,
         }
     }
 
-    pub fn is_char(self) -> bool {
+    pub fn is_char(&self) -> bool {
         self.len() == 1
     }
 
-    pub fn len(self) -> u32 {
-        self.end - self.start
+    pub fn len(&self) -> u32 {
+        // The reason we don't have a RangeInclusive::len is because it panics if the range is 0..=u32::max
+        // Akin to https://github.com/rust-lang/rust/issues/36386
+        // Plus one because the range is inclusive
+        self.end() + 1 - self.start()
     }
 
-    pub fn contains_u32(self, c: u32) -> bool {
-        c >= self.start && c < self.end
+    pub fn contains_u32(&self, c: u32) -> bool {
+        self.range.contains(&c)
     }
 
-    pub fn contains_char(self, c: char) -> bool {
+    pub fn contains_char(&self, c: char) -> bool {
         self.contains_u32(c as u32)
     }
 
-    pub fn intersects(self, r: Test) -> bool {
+    pub fn intersects(&self, r: &Test) -> bool {
         !self.is_empty()
             && !r.is_empty()
-            && (self.contains_u32(r.start) || r.contains_u32(self.start))
+            && (self.contains_u32(r.start()) || r.contains_u32(self.start()))
     }
 
-    pub fn is_disjoint(self, r: Test) -> bool {
+    pub fn is_disjoint(&self, r: &Test) -> bool {
         !self.intersects(r)
     }
 
-    pub fn is_empty(self) -> bool {
-        self.start == self.end
+    pub fn is_empty(&self) -> bool {
+        self.range.is_empty()
     }
 }
 
@@ -588,8 +588,8 @@ impl From<ClassBytesRange> for Test {
 }
 
 impl Debug for Test {
-    fn fmt(&self, fmt: &mut Formatter) -> Result<(), FmtError> {
-        match (char::from_u32(self.start), char::from_u32(self.end)) {
+    fn fmt(&self, fmt: &mut Formatter<'_>) -> Result<(), FmtError> {
+        match (char::from_u32(self.start()), char::from_u32(self.end())) {
             (Some(start), Some(end)) => {
                 if self.is_char() {
                     if ".[]()?+*!".contains(start) {
@@ -598,22 +598,22 @@ impl Debug for Test {
                         write!(fmt, "{}", start)
                     }
                 } else {
-                    write!(fmt, "[{:?}..{:?}]", start, end)
+                    write!(fmt, "[{:?}..={:?}]", start, end)
                 }
             }
-            _ => write!(fmt, "[{:?}..{:?}]", self.start, self.end),
+            _ => write!(fmt, "[{:?}..]{:?}]", self.start(), self.end()),
         }
     }
 }
 
-impl Debug for NFAStateIndex {
-    fn fmt(&self, fmt: &mut Formatter) -> Result<(), FmtError> {
-        write!(fmt, "NFA{}", self.0)
+impl Debug for NfaStateIndex {
+    fn fmt(&self, fmt: &mut Formatter<'_>) -> Result<(), FmtError> {
+        write!(fmt, "Nfa{}", self.0)
     }
 }
 
 impl<L: Debug> Debug for Edge<L> {
-    fn fmt(&self, fmt: &mut Formatter) -> Result<(), FmtError> {
+    fn fmt(&self, fmt: &mut Formatter<'_>) -> Result<(), FmtError> {
         write!(fmt, "{:?} -{:?}-> {:?}", self.from, self.label, self.to)
     }
 }

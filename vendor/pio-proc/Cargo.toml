@@ -10,13 +10,19 @@
 # See Cargo.toml.orig for the original contents.
 
 [package]
-edition = "2018"
+edition = "2021"
 name = "pio-proc"
-version = "0.2.2"
+version = "0.3.0"
 authors = [
     "snek",
     "The rp-rs Developers",
 ]
+build = false
+autolib = false
+autobins = false
+autoexamples = false
+autotests = false
+autobenches = false
 description = "proc-macro for assembling PIO code in a Rust program at compile time"
 readme = "README.md"
 license = "MIT"
@@ -24,22 +30,24 @@ repository = "https://github.com/rp-rs/pio-rs"
 resolver = "2"
 
 [lib]
+name = "pio_proc"
+path = "src/lib.rs"
 proc-macro = true
 
 [dependencies.codespan-reporting]
 version = "0.11"
 
 [dependencies.lalrpop-util]
-version = "0.19.6"
+version = "0.22.0"
 
-[dependencies.pio]
-version = "0.2.0"
+[dependencies.pio-core]
+version = "0.3.0"
 
 [dependencies.pio-parser]
-version = "0.2.0"
+version = "0.3.0"
 
-[dependencies.proc-macro-error]
-version = "1.0"
+[dependencies.proc-macro-error2]
+version = "2.0"
 
 [dependencies.proc-macro2]
 version = "1.0"
@@ -48,10 +56,5 @@ features = ["span-locations"]
 [dependencies.quote]
 version = "1.0"
 
-[dependencies.regex-syntax]
-version = "0.6"
-features = ["unicode"]
-default_features = false
-
 [dependencies.syn]
-version = "1.0"
+version = "2.0"

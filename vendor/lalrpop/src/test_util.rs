@@ -1,4 +1,3 @@
-use diff;
 use crate::grammar::parse_tree as pt;
 use crate::grammar::repr as r;
 use crate::normalize::NormError;
@@ -12,8 +11,8 @@ thread_local! {
 
 struct ExpectedDebug<'a>(&'a str);
 
-impl<'a> Debug for ExpectedDebug<'a> {
-    fn fmt(&self, fmt: &mut Formatter) -> Result<(), Error> {
+impl Debug for ExpectedDebug<'_> {
+    fn fmt(&self, fmt: &mut Formatter<'_>) -> Result<(), Error> {
         // Ignore trailing commas in multiline Debug representation.
         // Needed to work around rust-lang/rust#59076.
         let s = self.0.replace(",\n", "\n");
@@ -44,20 +43,19 @@ pub fn compare<D: Debug, E: Debug>(actual: D, expected: E) {
             }
         }
 
-        assert!(false);
+        panic!();
     }
 
     /// Ignore differences in `Span` values, by replacing them all with fixed
     /// dummy text.
-    fn normalize<'t>(with_spans: &'t str) -> std::borrow::Cow<'t, str> {
-        SPAN.with(|span| {
-            span.replace_all(with_spans, "Span(..)")
-        })
+    fn normalize(with_spans: &str) -> std::borrow::Cow<'_, str> {
+        SPAN.with(|span| span.replace_all(with_spans, "Span(..)"))
     }
 }
 
 pub fn normalized_grammar(s: &str) -> r::Grammar {
-    crate::normalize::normalize_without_validating(crate::parser::parse_grammar(s).unwrap()).unwrap()
+    crate::normalize::normalize_without_validating(crate::parser::parse_grammar(s).unwrap())
+        .unwrap()
 }
 
 pub fn check_norm_err(expected_err: &str, span: &str, err: NormError) {

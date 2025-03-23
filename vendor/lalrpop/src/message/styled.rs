@@ -1,7 +1,7 @@
 use super::*;
+use crate::style::Style;
 use ascii_canvas::AsciiView;
 use std::fmt::{Debug, Error, Formatter};
-use crate::style::Style;
 
 pub struct Styled {
     style: Style,
@@ -30,7 +30,7 @@ impl Content for Styled {
 }
 
 impl Debug for Styled {
-    fn fmt(&self, fmt: &mut Formatter) -> Result<(), Error> {
+    fn fmt(&self, fmt: &mut Formatter<'_>) -> Result<(), Error> {
         fmt.debug_struct("Styled")
             .field("content", &self.content)
             .finish()

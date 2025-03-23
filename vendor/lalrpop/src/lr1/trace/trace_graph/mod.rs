@@ -56,7 +56,7 @@ pub struct TraceGraph<'grammar> {
 #[derive(Clone, Debug, PartialOrd, Ord, PartialEq, Eq)]
 pub enum TraceGraphNode<'grammar> {
     Nonterminal(NonterminalString),
-    Item(LR0Item<'grammar>),
+    Item(Lr0Item<'grammar>),
 }
 
 impl<'grammar> TraceGraph<'grammar> {
@@ -97,7 +97,7 @@ impl<'grammar> TraceGraph<'grammar> {
 
     pub fn lr0_examples<'graph>(
         &'graph self,
-        lr0_item: LR0Item<'grammar>,
+        lr0_item: Lr0Item<'grammar>,
     ) -> PathEnumerator<'graph, 'grammar> {
         PathEnumerator::new(self, lr0_item)
     }
@@ -105,27 +105,27 @@ impl<'grammar> TraceGraph<'grammar> {
     pub fn lr1_examples<'trace>(
         &'trace self,
         first_sets: &'trace FirstSets,
-        item: &LR1Item<'grammar>,
+        item: &Lr1Item<'grammar>,
     ) -> FilteredPathEnumerator<'trace, 'grammar> {
         FilteredPathEnumerator::new(first_sets, self, item.to_lr0(), item.lookahead.clone())
     }
 }
 
-impl<'grammar> Into<TraceGraphNode<'grammar>> for NonterminalString {
-    fn into(self) -> TraceGraphNode<'grammar> {
-        TraceGraphNode::Nonterminal(self)
+impl From<NonterminalString> for TraceGraphNode<'_> {
+    fn from(val: NonterminalString) -> Self {
+        TraceGraphNode::Nonterminal(val)
     }
 }
 
-impl<'grammar, L: Lookahead> Into<TraceGraphNode<'grammar>> for Item<'grammar, L> {
-    fn into(self) -> TraceGraphNode<'grammar> {
-        (&self).into()
+impl<'grammar, L: Lookahead> From<Item<'grammar, L>> for TraceGraphNode<'grammar> {
+    fn from(val: Item<'grammar, L>) -> Self {
+        (&val).into()
     }
 }
 
-impl<'a, 'grammar, L: Lookahead> Into<TraceGraphNode<'grammar>> for &'a Item<'grammar, L> {
-    fn into(self) -> TraceGraphNode<'grammar> {
-        TraceGraphNode::Item(self.to_lr0())
+impl<'a, 'grammar, L: Lookahead> From<&'a Item<'grammar, L>> for TraceGraphNode<'grammar> {
+    fn from(val: &'a Item<'grammar, L>) -> Self {
+        TraceGraphNode::Item(val.to_lr0())
     }
 }
 
@@ -140,14 +140,14 @@ struct TraceGraphEdge<'grammar> {
     ),
 }
 
-impl<'grammar> Debug for TraceGraphEdge<'grammar> {
-    fn fmt(&self, fmt: &mut Formatter) -> Result<(), Error> {
+impl Debug for TraceGraphEdge<'_> {
+    fn fmt(&self, fmt: &mut Formatter<'_>) -> Result<(), Error> {
         write!(fmt, "({:?} -{:?}-> {:?})", self.from, self.label, self.to)
     }
 }
 
-impl<'grammar> Debug for TraceGraph<'grammar> {
-    fn fmt(&self, fmt: &mut Formatter) -> Result<(), Error> {
+impl Debug for TraceGraph<'_> {
+    fn fmt(&self, fmt: &mut Formatter<'_>) -> Result<(), Error> {
         let mut s = fmt.debug_list();
         for (node, &index) in &self.indices {
             for edge in self.graph.edges_directed(index, EdgeDirection::Outgoing) {
@@ -166,24 +166,24 @@ impl<'grammar> Debug for TraceGraph<'grammar> {
 ///////////////////////////////////////////////////////////////////////////
 // PathEnumerator
 //
-// The path enumerater walks a trace graph searching for paths that
+// The path enumerator walks a trace graph searching for paths that
 // start at a given item and terminate at another item. If such a path
 // is found, you can then find the complete list of symbols by calling
 // `symbols_and_cursor` and also get access to the state.
 
-pub struct PathEnumerator<'graph, 'grammar: 'graph> {
+pub struct PathEnumerator<'graph, 'grammar> {
     graph: &'graph TraceGraph<'grammar>,
     stack: Vec<EnumeratorState<'graph, 'grammar>>,
 }
 
-struct EnumeratorState<'graph, 'grammar: 'graph> {
+struct EnumeratorState<'graph, 'grammar> {
     index: NodeIndex,
     symbol_sets: SymbolSets<'grammar>,
     edges: Edges<'graph, SymbolSets<'grammar>, Directed>,
 }
 
 impl<'graph, 'grammar> PathEnumerator<'graph, 'grammar> {
-    fn new(graph: &'graph TraceGraph<'grammar>, lr0_item: LR0Item<'grammar>) -> Self {
+    fn new(graph: &'graph TraceGraph<'grammar>, lr0_item: Lr0Item<'grammar>) -> Self {
         let start_state = graph.indices[&TraceGraphNode::Item(lr0_item)];
         let mut enumerator = PathEnumerator {
             graph,
@@ -354,7 +354,6 @@ impl<'graph, 'grammar> PathEnumerator<'graph, 'grammar> {
             None => {
                 if self.stack[1].symbol_sets.prefix.is_empty() {
                     symbols.push(ExampleSymbol::Epsilon)
-                } else {
                 }
             }
         }
@@ -397,7 +396,7 @@ impl<'graph, 'grammar> PathEnumerator<'graph, 'grammar> {
     }
 }
 
-impl<'graph, 'grammar> Iterator for PathEnumerator<'graph, 'grammar> {
+impl Iterator for PathEnumerator<'_, '_> {
     type Item = Example;
 
     fn next(&mut self) -> Option<Example> {
@@ -417,7 +416,7 @@ impl<'graph, 'grammar> Iterator for PathEnumerator<'graph, 'grammar> {
 // Like the path enumerator, but tests for examples with some specific
 // lookahead
 
-pub struct FilteredPathEnumerator<'graph, 'grammar: 'graph> {
+pub struct FilteredPathEnumerator<'graph, 'grammar> {
     base: PathEnumerator<'graph, 'grammar>,
     first_sets: &'graph FirstSets,
     lookahead: TokenSet,
@@ -427,7 +426,7 @@ impl<'graph, 'grammar> FilteredPathEnumerator<'graph, 'grammar> {
     fn new(
         first_sets: &'graph FirstSets,
         graph: &'graph TraceGraph<'grammar>,
-        lr0_item: LR0Item<'grammar>,
+        lr0_item: Lr0Item<'grammar>,
         lookahead: TokenSet,
     ) -> Self {
         FilteredPathEnumerator {
@@ -438,7 +437,7 @@ impl<'graph, 'grammar> FilteredPathEnumerator<'graph, 'grammar> {
     }
 }
 
-impl<'graph, 'grammar> Iterator for FilteredPathEnumerator<'graph, 'grammar> {
+impl Iterator for FilteredPathEnumerator<'_, '_> {
     type Item = Example;
 
     fn next(&mut self) -> Option<Example> {

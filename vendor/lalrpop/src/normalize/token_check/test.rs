@@ -111,12 +111,14 @@ fn regex_literals() {
 
 /// Basic test for match mappings.
 #[test]
+// This test requires regex's unicode case support
+#[cfg_attr(not(feature = "unicode"), ignore)]
 fn match_mappings() {
     check_intern_token(
         r#"grammar; match { r"(?i)begin" => "BEGIN" } else { "abc" => ALPHA } X = "BEGIN" ALPHA;"#,
         vec![
-            ("BEGIN", r##"Some(("BEGIN", "BEGIN"))"##),
-            ("begin", r##"Some(("BEGIN", "begin"))"##),
+            ("BEGIN", r#"Some(("BEGIN", "BEGIN"))"#),
+            ("begin", r#"Some(("BEGIN", "begin"))"#),
             ("abc", r#"Some((ALPHA, "abc"))"#),
         ],
     );
@@ -125,12 +127,14 @@ fn match_mappings() {
 /// Match mappings, exercising precedence. Here the ID regex *would*
 /// be ambiguous with the begin regex.
 #[test]
+// This test requires regex's unicode case support
+#[cfg_attr(not(feature = "unicode"), ignore)]
 fn match_precedence() {
     check_intern_token(
         r#"grammar; match { r"(?i)begin" => "BEGIN" } else { r"\w+" => ID } X = ();"#,
         vec![
-            ("BEGIN", r##"Some(("BEGIN", "BEGIN"))"##),
-            ("begin", r##"Some(("BEGIN", "begin"))"##),
+            ("BEGIN", r#"Some(("BEGIN", "BEGIN"))"#),
+            ("begin", r#"Some(("BEGIN", "begin"))"#),
             ("abc", r#"Some((ID, "abc"))"#),
         ],
     );
@@ -158,14 +162,48 @@ fn invalid_match_regex_literal() {
 
 /// Test that, with a catch-all, the previous two examples work.
 #[test]
+// This test requires regex's unicode case support
+#[cfg_attr(not(feature = "unicode"), ignore)]
 fn match_catch_all() {
     let grammar = r#"grammar; match { r"(?i)begin" => "BEGIN", _ } X = { "foo", r"foo" };"#;
     assert!(validate_grammar(grammar).is_ok())
 }
 
+/// Test that a `catch-all` can be use in the first `match` arm.
+/// Before the pull request to close [issue 325](https://github.com/lalrpop/lalrpop/issues/325),
+/// the usage of the `catch-all` symbol was not allowed in the first arm of a `match` block.
 #[test]
+fn match_catch_all_in_first_arm() {
+    let grammar = r#"
+        grammar;
+        match {
+            r"[a-z]",
+            _
+        } else {
+            r"[[:word:]]+"
+        }
+        pub Term = {
+            Num,
+            "(" <Term> ")",
+            r"[[:word:]]+" => format!("Id({})", <>),
+        };
+        Num: String = r"[0-9]+" => <>.to_string();
+"#;
+    assert!(validate_grammar(grammar).is_ok());
+    check_intern_token(
+        grammar,
+        vec![
+            ("x", r##"Some((r#"[a-z]"#, "x"))"##),
+            ("xy", r##"Some((r#"[[:word:]]+"#, "xy"))"##),
+        ],
+    );
+}
+
+#[test]
+// This test requires regex's unicode case support
+#[cfg_attr(not(feature = "unicode"), ignore)]
 fn complex_match() {
-    let grammar = r##"
+    let grammar = r#"
         grammar;
         match {
             "abc"        => "ABC",
@@ -175,13 +213,15 @@ fn complex_match() {
         pub Query: String = {
             "ABC" BEGIN => String::from("Success")
         };
-"##;
+"#;
     assert!(validate_grammar(grammar).is_ok())
 }
 
 /// Test that overlapping regular expressions are still forbidden within one level
 /// of a match declaration.
 #[test]
+// This test requires regex's unicode case support
+#[cfg_attr(not(feature = "unicode"), ignore)]
 fn ambiguity_within_match() {
     check_err(
         r##"ambiguity detected between the terminal `r#"b"#` and the terminal `r#"\(\?i\)b"#`"##,
@@ -196,8 +236,8 @@ fn ambiguity_within_match() {
 #[test]
 fn same_literal_twice() {
     check_err(
-        r##"multiple match entries for `r#"\(\?i\)b"#`"##,
-        r#"grammar; match { r"(?i)b" => "B" } else { r"(?i)b" => "b" }"#,
-        r#"                                          ~~~~~~~~~~~~~~~~ "#,
+        r##"multiple match entries for `r#"\[bB\]"#`"##,
+        r#"grammar; match { r"[bB]" => "B" } else { r"[bB]" => "b" }"#,
+        r#"                                         ~~~~~~~~~~~~~~~ "#,
     );
 }

@@ -1,7 +1,7 @@
-use crate::lexer::dfa::{Kind, NFAIndex, DFA, START};
+use crate::lexer::dfa::{Dfa, Kind, NfaIndex, START};
 
-pub fn interpret<'text>(dfa: &DFA, input: &'text str) -> Option<(NFAIndex, &'text str)> {
-    let mut longest: Option<(NFAIndex, usize)> = None;
+pub fn interpret<'text>(dfa: &Dfa, input: &'text str) -> Option<(NfaIndex, &'text str)> {
+    let mut longest: Option<(NfaIndex, usize)> = None;
     let mut state_index = START;
 
     for (offset, ch) in input.char_indices() {
@@ -11,7 +11,7 @@ pub fn interpret<'text>(dfa: &DFA, input: &'text str) -> Option<(NFAIndex, &'tex
             .state(state_index)
             .test_edges
             .iter()
-            .filter_map(|&(test, target)| {
+            .filter_map(|(test, target)| {
                 if test.contains_char(ch) {
                     Some(target)
                 } else {
@@ -21,7 +21,7 @@ pub fn interpret<'text>(dfa: &DFA, input: &'text str) -> Option<(NFAIndex, &'tex
             .next();
 
         if let Some(target) = target {
-            state_index = target;
+            state_index = *target;
         } else {
             state_index = state.other_edge;
         }

@@ -1,5 +1,4 @@
-num_enum
-========
+# num_enum
 
 Procedural macros to make inter-operation between primitives and enums easier.
 This crate is no_std compatible.
@@ -8,8 +7,7 @@ This crate is no_std compatible.
 [![Documentation](https://docs.rs/num_enum/badge.svg)](https://docs.rs/num_enum)
 [![Build Status](https://travis-ci.org/illicitonion/num_enum.svg?branch=master)](https://travis-ci.org/illicitonion/num_enum)
 
-Turning an enum into a primitive
---------------------------------
+## Turning an enum into a primitive
 
 ```rust
 use num_enum::IntoPrimitive;
@@ -29,8 +27,7 @@ fn main() {
 
 `num_enum`'s `IntoPrimitive` is more type-safe than using `as`, because `as` will silently truncate - `num_enum` only derives `From` for exactly the discriminant type of the enum.
 
-Attempting to turn a primitive into an enum with try_from
-----------------------------------------------
+## Attempting to turn a primitive into an enum with try_from
 
 ```rust
 use num_enum::TryFromPrimitive;
@@ -55,8 +52,7 @@ fn main() {
 }
 ```
 
-Variant alternatives
----------------
+### Variant alternatives
 
 Sometimes a single enum variant might be representable by multiple numeric values.
 
@@ -122,41 +118,34 @@ fn main() {
 }
 ```
 
-Default variant
----------------
+### Custom error types
 
-Sometimes it is desirable to have an `Other` variant in an enum that acts as a kind of a wildcard matching all the value not yet covered by other variants.
+`TryFromPrimitive` by default will use `num_enum::TryFromPrimitiveError` as its `Error` type.
 
-The `#[num_enum(default)]` attribute allows you to mark variant as the default.
-
-(The behavior of `IntoPrimitive` is unaffected by this attribute, it will always return the canonical value.)
+If you want to use a different type, you can use an annotation for this:
 
 ```rust
 use num_enum::TryFromPrimitive;
-use std::convert::TryFrom;
 
 #[derive(Debug, Eq, PartialEq, TryFromPrimitive)]
+#[num_enum(error_type(name = CustomError, constructor = CustomError::new))]
 #[repr(u8)]
-enum Number {
-    Zero = 0,
-    #[num_enum(default)]
-    NonZero = 1,
+enum FirstNumber {
+    Zero,
+    One,
+    Two,
 }
 
-fn main() {
-    let zero = Number::try_from(0u8);
-    assert_eq!(zero, Ok(Number::Zero));
+struct CustomError {}
 
-    let one = Number::try_from(1u8);
-    assert_eq!(one, Ok(Number::NonZero));
-
-    let two = Number::try_from(2u8);
-    assert_eq!(two, Ok(Number::NonZero));
+impl CustomError {
+    fn new(value: u8) -> CustomError {
+        CustomError {}
+    }
 }
 ```
 
-Safely turning a primitive into an exhaustive enum with from_primitive
--------------------------------------------------------------
+## Safely turning a primitive into an exhaustive enum with from_primitive
 
 If your enum has all possible primitive values covered, you can derive `FromPrimitive` for it (which auto-implement stdlib's `From`):
 
@@ -189,8 +178,41 @@ fn main() {
 }
 ```
 
-Catch-all variant
------------------
+### Default variant
+
+Sometimes it is desirable to have an `Other` variant in an enum that acts as a kind of a wildcard matching all the value not yet covered by other variants.
+
+The `#[num_enum(default)]` attribute (or the stdlib `#[default]` attribute) allows you to mark variant as the default.
+
+(The behavior of `IntoPrimitive` is unaffected by this attribute, it will always return the canonical value.)
+
+```rust
+use num_enum::FromPrimitive;
+use std::convert::TryFrom;
+
+#[derive(Debug, Eq, PartialEq, FromPrimitive)]
+#[repr(u8)]
+enum Number {
+    Zero = 0,
+    #[num_enum(default)]
+    NonZero = 1,
+}
+
+fn main() {
+    let zero = Number::from(0u8);
+    assert_eq!(zero, Number::Zero);
+
+    let one = Number::from(1u8);
+    assert_eq!(one, Number::NonZero);
+
+    let two = Number::from(2u8);
+    assert_eq!(two, Number::NonZero);
+}
+```
+
+Only `FromPrimitive` pays attention to `default` attributes, `TryFromPrimitive` ignores them.
+
+### Catch-all variant
 
 Sometimes it is desirable to have an `Other` variant which holds the otherwise un-matched value as a field.
 
@@ -222,8 +244,7 @@ fn main() {
 
 As this is naturally exhaustive, this is only supported for `FromPrimitive`, not also `TryFromPrimitive`.
 
-Unsafely turning a primitive into an enum with from_unchecked
--------------------------------------------------------------
+## Unsafely turning a primitive into an enum with unchecked_transmute_from
 
 If you're really certain a conversion will succeed (and have not made use of `#[num_enum(default)]` or `#[num_enum(alternatives = [..])]`
 for any of its variants), and want to avoid a small amount of overhead, you can use unsafe code to do this conversion.
@@ -242,22 +263,41 @@ enum Number {
 
 fn main() {
     assert_eq!(
-        unsafe { Number::from_unchecked(0_u8) },
+        unsafe { Number::unchecked_transmute_from(0_u8) },
         Number::Zero,
     );
     assert_eq!(
-        unsafe { Number::from_unchecked(1_u8) },
+        unsafe { Number::unchecked_transmute_from(1_u8) },
         Number::One,
     );
 }
 
 unsafe fn undefined_behavior() {
-    let _ = Number::from_unchecked(2); // 2 is not a valid discriminant!
+    let _ = Number::unchecked_transmute_from(2); // 2 is not a valid discriminant!
 }
 ```
 
-Optional features
------------------
+Note that this derive ignores any `default`, `catch_all`, and `alternatives` attributes on the enum.
+If you need support for conversions from these values, you should use `TryFromPrimitive` or `FromPrimitive`.
+
+This means, for instance, that the following is undefined behaviour:
+
+```rust,no_run
+use num_enum::UnsafeFromPrimitive;
+
+#[derive(UnsafeFromPrimitive)]
+#[repr(u8)]
+enum Number {
+    Zero = 0,
+
+    // Same for `#[num_enum(catch_all)]`, and `#[num_enum(alternatives = [2, ...])]`
+    #[num_enum(default)]
+    One = 1,
+}
+let _undefined_behavior = unsafe { Number::unchecked_transmute_from(2) };
+```
+
+## Optional features
 
 Some enum values may be composed of complex expressions, for example:
 
@@ -271,7 +311,6 @@ enum Number {
 To cut down on compile time, these are not supported by default, but if you enable the `complex-expressions`
 feature of your dependency on `num_enum`, these should start working.
 
-License
--------
+## License
 
 num_enum may be used under your choice of the BSD 3-clause, Apache 2, or MIT license.

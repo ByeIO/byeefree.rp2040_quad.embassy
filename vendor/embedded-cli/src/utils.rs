@@ -1,0 +1,144 @@
+use crate::utf8::Utf8Accum;
+
+/// Returns byte index of given char index
+/// If text doesn't have that many chars, returns None
+/// For example, in text `abc` `b` has both char and byte index of `1`.
+/// But in text `вгд` `г` has char index of 1, but byte index of `2` (`в` is 2 bytes long)
+pub fn char_byte_index(text: &str, char_index: usize) -> Option<usize> {
+    let mut accum = Utf8Accum::default();
+    let mut byte_index = 0;
+    let mut current = 0;
+    for &b in text.as_bytes() {
+        if char_index == current {
+            return Some(byte_index);
+        }
+        if accum.push_byte(b).is_some() {
+            current += 1;
+        }
+        byte_index += 1;
+    }
+    if char_index == current && byte_index < text.len() {
+        return Some(byte_index);
+    }
+    None
+}
+
+pub fn char_count(text: &str) -> usize {
+    let mut accum = Utf8Accum::default();
+    let mut count = 0;
+    for &b in text.as_bytes() {
+        if accum.push_byte(b).is_some() {
+            count += 1;
+        }
+    }
+    count
+}
+
+/// Returns length (in bytes) of longest common prefix
+pub fn common_prefix_len(left: &str, right: &str) -> usize {
+    let mut accum1 = Utf8Accum::default();
+
+    let mut pos = 0;
+    let mut byte_counter = 0;
+
+    for (&b1, &b2) in left.as_bytes().iter().zip(right.as_bytes().iter()) {
+        if b1 != b2 {
+            break;
+        }
+        let c1 = accum1.push_byte(b1);
+        byte_counter += 1;
+        if c1.is_some() {
+            pos = byte_counter;
+        }
+    }
+
+    pos
+}
+
+pub fn trim_start(input: &str) -> &str {
+    if let Some(pos) = input.as_bytes().iter().position(|b| *b != b' ') {
+        input.get(pos..).unwrap_or("")
+    } else {
+        ""
+    }
+}
+
+/// Splits given mutable slice into two parts
+///
+/// # Safety
+/// mid must be <= slice.len()
+#[cfg(feature = "autocomplete")]
+pub unsafe fn split_at_mut(buf: &mut [u8], mid: usize) -> (&mut [u8], &mut [u8]) {
+    // this exists only because slice::split_at_unchecked is not stable:
+    // https://github.com/rust-lang/rust/issues/76014
+    let len = buf.len();
+    let ptr = buf.as_mut_ptr();
+
+    // SAFETY: Caller has to check that `mid <= self.len()`
+    unsafe {
+        debug_assert!(mid <= len);
+        (
+            core::slice::from_raw_parts_mut(ptr, mid),
+            core::slice::from_raw_parts_mut(ptr.add(mid), len - mid),
+        )
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use rstest::rstest;
+
+    use crate::utils;
+
+    #[rstest]
+    #[case::no_spaces("abc", "abc")]
+    #[case::leading_spaces("  abc", "abc")]
+    #[case::trailing_spaces("abc  ", "abc  ")]
+    #[case::both_spaces("  abc   ", "abc   ")]
+    #[case::space_inside("  abc def  ", "abc def  ")]
+    #[case::multiple_spaces_inside("  abc   def  ", "abc   def  ")]
+    #[case::utf8("  abc dабвг佐  佗佟𑿁   𑿆𑿌  ", "abc dабвг佐  佗佟𑿁   𑿆𑿌  ")]
+    fn trim_start(#[case] input: &str, #[case] expected: &str) {
+        assert_eq!(utils::trim_start(input), expected);
+    }
+
+    #[rstest]
+    #[case("abcdef")]
+    #[case("abcd абв 佐佗佟𑿁 𑿆𑿌")]
+    fn char_byte_pos(#[case] text: &str) {
+        // last iteration will check for None
+        for pos in 0..=text.chars().count() {
+            let expected = text.char_indices().map(|(pos, _)| pos).nth(pos);
+
+            assert_eq!(utils::char_byte_index(text, pos), expected)
+        }
+    }
+
+    #[rstest]
+    #[case("abcdef")]
+    #[case("abcd абв 佐佗佟𑿁 𑿆𑿌")]
+    fn char_count(#[case] text: &str) {
+        assert_eq!(utils::char_count(text), text.chars().count())
+    }
+
+    #[rstest]
+    #[case("abcdef", "abcdef")]
+    #[case("abcdef", "abc")]
+    #[case("abcdef", "abc ghf")]
+    #[case("abcdef", "")]
+    #[case("", "")]
+    #[case("абв 佐佗佟𑿁", "абв 佐佗佟𑿁")]
+    #[case("абв 佐佗佟𑿁𑿆𑿌", "абв 佐佗佟𑿁")]
+    #[case("абв 佐佗佟𑿁 𑿆𑿌", "абв 佐佗𑿁佟")]
+    fn common_prefix(#[case] left: &str, #[case] right: &str) {
+        let expected = left
+            .char_indices()
+            .zip(right.char_indices())
+            .find(|((_, a1), (_, a2))| a1 != a2)
+            .map(|((pos, _), _)| pos)
+            .unwrap_or(right.len().min(left.len()));
+
+        assert_eq!(utils::common_prefix_len(left, right), expected);
+        assert_eq!(utils::common_prefix_len(right, left), expected);
+    }
+}

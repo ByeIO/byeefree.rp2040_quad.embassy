@@ -12,7 +12,7 @@
 [package]
 edition = "2021"
 name = "embassy-rp"
-version = "0.3.1"
+version = "0.4.0"
 build = "build.rs"
 autolib = false
 autobins = false
@@ -115,7 +115,7 @@ features = [
 ]
 
 [dependencies.embassy-sync]
-version = "0.6.1"
+version = "0.6.2"
 
 [dependencies.embassy-time]
 version = "0.4.0"
@@ -169,10 +169,7 @@ optional = true
 version = "1.1.0"
 
 [dependencies.pio]
-version = "0.2.1"
-
-[dependencies.pio-proc]
-version = "0.2"
+version = "0.3"
 
 [dependencies.rand_core]
 version = "0.6.4"
@@ -226,6 +223,9 @@ defmt = [
     "embassy-usb-driver/defmt",
     "embassy-hal-internal/defmt",
 ]
+imagedef-none = []
+imagedef-nonsecure-exe = []
+imagedef-secure-exe = []
 intrinsics = []
 qspi-as-gpio = []
 rom-func-cache = []

@@ -28,7 +28,7 @@
 //! ```
 //!
 //! * -- in this case, those "user-declared" parameters are inserted by
-//! the "internal tokenizer".
+//!   the "internal tokenizer".
 
 use crate::grammar::repr as r;
 use crate::rust::RustWrite;
@@ -120,6 +120,7 @@ fn emit_user_action_code<W: Write>(
         ]);
     }
 
+    rust!(rust, "#[allow(clippy::too_many_arguments, clippy::needless_lifetimes, clippy::just_underscores_and_digits)]");
     rust.fn_header(
         &r::Visibility::Priv,
         format!("{}action{}", grammar.prefix, index),
@@ -130,7 +131,12 @@ fn emit_user_action_code<W: Write>(
     .emit()?;
 
     rust!(rust, "{{");
-    rust!(rust, "{}", data.code);
+
+    // The user did not provide any code
+    if data.code != "()" {
+        rust!(rust, "{}", data.code);
+    }
+
     rust!(rust, "}}");
     Ok(())
 }
@@ -142,6 +148,7 @@ fn emit_lookaround_action_code<W: Write>(
     _defn: &r::ActionFnDefn,
     data: &r::LookaroundActionFnDefn,
 ) -> io::Result<()> {
+    rust!(rust, "#[allow(clippy::needless_lifetimes)]");
     rust.fn_header(
         &r::Visibility::Priv,
         format!("{}action{}", grammar.prefix, index),
@@ -169,11 +176,11 @@ fn emit_lookaround_action_code<W: Write>(
             // at EOF, so taker the lookbehind (end of last
             // pushed token); if that is missing too, then
             // supply default.
-            rust!(rust, "{}lookahead.clone()", grammar.prefix);
+            rust!(rust, "*{}lookahead", grammar.prefix);
         }
         r::LookaroundActionFnDefn::Lookbehind => {
             // take lookbehind or supply default
-            rust!(rust, "{}lookbehind.clone()", grammar.prefix);
+            rust!(rust, "*{}lookbehind", grammar.prefix);
         }
     }
     rust!(rust, "}}");
@@ -228,6 +235,11 @@ fn emit_inline_action_code<W: Write>(
         ]);
     }
 
+    rust!(
+        rust,
+        "#[allow(clippy::too_many_arguments, clippy::needless_lifetimes,
+    clippy::just_underscores_and_digits)]"
+    );
     rust.fn_header(
         &r::Visibility::Priv,
         format!("{}action{}", grammar.prefix, index),
@@ -256,7 +268,7 @@ fn emit_inline_action_code<W: Write>(
 
                     rust!(
                         rust,
-                        "let {}start{} = {}{}.0.clone();",
+                        "let {}start{} = {}{}.0;",
                         grammar.prefix,
                         temp_counter,
                         grammar.prefix,
@@ -266,7 +278,7 @@ fn emit_inline_action_code<W: Write>(
                     let last_arg_index = arg_counter + syms.len() - 1;
                     rust!(
                         rust,
-                        "let {}end{} = {}{}.2.clone();",
+                        "let {}end{} = {}{}.2;",
                         grammar.prefix,
                         temp_counter,
                         grammar.prefix,
@@ -282,7 +294,7 @@ fn emit_inline_action_code<W: Write>(
                     if arg_counter > 0 {
                         rust!(
                             rust,
-                            "let {}start{} = {}{}.2.clone();",
+                            "let {}start{} = {}{}.2;",
                             grammar.prefix,
                             temp_counter,
                             grammar.prefix,
@@ -291,7 +303,7 @@ fn emit_inline_action_code<W: Write>(
                     } else if num_flat_args > 0 {
                         rust!(
                             rust,
-                            "let {}start{} = {}{}.0.clone();",
+                            "let {}start{} = {}{}.0;",
                             grammar.prefix,
                             temp_counter,
                             grammar.prefix,
@@ -300,7 +312,7 @@ fn emit_inline_action_code<W: Write>(
                     } else {
                         rust!(
                             rust,
-                            "let {}start{} = {}lookbehind.clone();",
+                            "let {}start{} = *{}lookbehind;",
                             grammar.prefix,
                             temp_counter,
                             grammar.prefix
@@ -310,7 +322,7 @@ fn emit_inline_action_code<W: Write>(
                     if arg_counter < num_flat_args {
                         rust!(
                             rust,
-                            "let {}end{} = {}{}.0.clone();",
+                            "let {}end{} = {}{}.0;",
                             grammar.prefix,
                             temp_counter,
                             grammar.prefix,
@@ -319,7 +331,7 @@ fn emit_inline_action_code<W: Write>(
                     } else if num_flat_args > 0 {
                         rust!(
                             rust,
-                            "let {}end{} = {}{}.2.clone();",
+                            "let {}end{} = {}{}.2;",
                             grammar.prefix,
                             temp_counter,
                             grammar.prefix,
@@ -328,7 +340,7 @@ fn emit_inline_action_code<W: Write>(
                     } else {
                         rust!(
                             rust,
-                            "let {}end{} = {}lookahead.clone();",
+                            "let {}end{} = *{}lookahead;",
                             grammar.prefix,
                             temp_counter,
                             grammar.prefix
@@ -411,10 +423,9 @@ fn emit_inline_action_code<W: Write>(
 
     let final_action_fallible = grammar.action_is_fallible(data.action);
     let (ok_begin, ok_end) = match (defn.fallible, final_action_fallible) {
-        (true, true) |
-        (false, false) => ("", ""),
+        (true, true) | (false, false) => ("", ""),
         (true, false) => ("Ok(", ")"),
-        (false, true) => unreachable!()
+        (false, true) => unreachable!(),
     };
 
     rust!(

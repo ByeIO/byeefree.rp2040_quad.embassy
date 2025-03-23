@@ -1,6 +1,3 @@
-extern crate lalrpop;
-extern crate pico_args;
-
 use std::ffi::OsString;
 use std::io::Write;
 use std::path::{Path, PathBuf};
@@ -11,9 +8,9 @@ use pico_args::Arguments;
 
 use lalrpop::Configuration;
 
-static VERSION: &str = env!("CARGO_PKG_VERSION");
+const VERSION: &str = env!("CARGO_PKG_VERSION");
 
-const USAGE: &str = "
+const USAGE: &str = "\
 Usage: lalrpop [options] <inputs>...
        lalrpop --help
        lalrpop (-V | --version)
@@ -29,7 +26,7 @@ Options:
     -c, --color          Force colorful output, even if this is not a TTY.
     --no-whitespace      Removes redundant whitespace from the generated file. (Default: false)
     --comments           Enable comments in the generated code.
-    --report             Generate report files.
+    --report             Generate report files.\
 ";
 
 #[derive(Debug)]
@@ -65,12 +62,12 @@ impl FromStr for LevelFlag {
             "info" => Ok(Info),
             "verbose" => Ok(Verbose),
             "debug" => Ok(Debug),
-            x => Err(format!("Unknown level {}", x)),
+            x => Err(format!("Unknown level: {x}")),
         }
     }
 }
 
-fn parse_args(mut args: Arguments) -> Result<Args, Box<dyn std::error::Error>> {
+fn parse_args(mut args: Arguments) -> Result<Args, pico_args::Error> {
     Ok(Args {
         flag_out_dir: args.opt_value_from_fn(["-o", "--out-dir"], PathBuf::from_str)?,
         flag_features: args.opt_value_from_str("--features")?,
@@ -86,24 +83,20 @@ fn parse_args(mut args: Arguments) -> Result<Args, Box<dyn std::error::Error>> {
     })
 }
 
-fn main() {
-    main1().unwrap();
-}
-
-fn main1() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut stderr = std::io::stderr();
     let mut stdout = std::io::stdout();
 
     let args = parse_args(Arguments::from_env())?;
 
     if args.flag_help {
-        writeln!(stdout, "{}", USAGE)?;
-        process::exit(0);
+        writeln!(stdout, "{USAGE}")?;
+        return Ok(());
     }
 
     if args.flag_version {
-        writeln!(stdout, "{}", VERSION)?;
-        process::exit(0);
+        writeln!(stdout, "{VERSION}")?;
+        return Ok(());
     }
 
     let mut config = Configuration::new();
@@ -136,14 +129,10 @@ fn main1() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     if args.arg_inputs.is_empty() {
-        writeln!(
-            stderr,
-            "Error: no input files specified! Try --help for help."
-        )?;
-        process::exit(1);
+        return Err("Error: no input files specified! Try --help for help.".into());
     }
 
-    if let Some(ref out_dir) = args.flag_out_dir {
+    if let Some(out_dir) = args.flag_out_dir {
         config.set_out_dir(out_dir);
     }
 
@@ -179,24 +168,24 @@ mod test {
         vals.iter().map(|v| v.into()).collect()
     }
 
-    fn parse_args_vec(args: &Vec<&str>) -> Args {
+    fn parse_args_slice(args: &[&str]) -> Args {
         parse_args(Arguments::from_vec(os_vec(args))).unwrap()
     }
 
     #[test]
     fn test_usage_help() {
-        assert!(parse_args_vec(&vec!["--help"]).flag_help);
+        assert!(parse_args_slice(&["--help"]).flag_help);
     }
 
     #[test]
     fn test_usage_version() {
-        assert!(parse_args_vec(&vec!["--version"]).flag_version);
+        assert!(parse_args_slice(&["--version"]).flag_version);
     }
 
     #[test]
     fn test_usage_single_input() {
         assert_eq!(
-            parse_args_vec(&vec!["file.lalrpop"]).arg_inputs,
+            parse_args_slice(&["file.lalrpop"]).arg_inputs,
             ["file.lalrpop"]
         );
     }
@@ -204,26 +193,26 @@ mod test {
     #[test]
     fn test_usage_multiple_inputs() {
         let files = vec!["file.lalrpop", "../file2.lalrpop"];
-        assert_eq!(parse_args_vec(&files).arg_inputs, files);
+        assert_eq!(parse_args_slice(&files).arg_inputs, files);
     }
 
     #[test]
     fn test_usage_out_dir() {
-        let args = parse_args_vec(&vec!["--out-dir", "abc", "file.lalrpop"]);
-        assert_eq!(args.flag_out_dir, Some(PathBuf::from_str("abc").unwrap()));
+        let args = parse_args_slice(&["--out-dir", "abc", "file.lalrpop"]);
+        assert_eq!(args.flag_out_dir.as_deref(), Some(Path::new("abc")));
         assert_eq!(args.arg_inputs, ["file.lalrpop"]);
     }
 
     #[test]
     fn test_usage_features() {
-        let args = parse_args_vec(&vec!["--features", "test,abc", "file.lalrpop"]);
+        let args = parse_args_slice(&["--features", "test,abc", "file.lalrpop"]);
         assert_eq!(args.flag_features, Some("test,abc".into()));
         assert_eq!(args.arg_inputs, ["file.lalrpop"]);
     }
 
     #[test]
     fn test_usage_emit_whitespace() {
-        let args = parse_args_vec(&vec!["--no-whitespace", "file.lalrpop"]);
+        let args = parse_args_slice(&["--no-whitespace", "file.lalrpop"]);
         assert!(args.flag_no_whitespace);
         assert_eq!(args.arg_inputs, ["file.lalrpop"]);
     }
@@ -231,7 +220,7 @@ mod test {
     #[test]
     fn test_usage_level() {
         assert_eq!(
-            parse_args_vec(&vec!["-l", "info"]).flag_level,
+            parse_args_slice(&["-l", "info"]).flag_level,
             Some(LevelFlag::Info)
         );
     }

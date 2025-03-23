@@ -2,23 +2,24 @@ use std::iter;
 
 use crate::grammar::parse_tree::*;
 use crate::grammar::pattern::*;
-use lalrpop_util;
 use crate::tok;
 
-#[cfg(not(feature = "test"))]
+#[rustfmt::skip]
 #[allow(dead_code)]
+#[allow(clippy::all)]
 mod lrgrammar;
 
-#[cfg(feature = "test")]
-lalrpop_mod!(
-    #[allow(dead_code)]
-    lrgrammar,
-    "/src/parser/lrgrammar.rs"
-);
 
 #[cfg(test)]
 mod test;
 
+// The TypeRef and GrammarWhereClauses variants have data that is only read under cfg(test) (the
+// parse_type_ref() and parse_where_clauses() functions lower in this file).  Those functions use
+// the parser!() macro, which expects all variants to have a single data field.  They are set in
+// the parser.  So to have those fields only in the test configuration requires changes at multiple
+// code points across several files to define both a cfg(test) variant and a cfg(not(test))
+// variant, reducing readability.
+#[allow(dead_code)]
 pub enum Top {
     Grammar(Grammar),
     Pattern(Pattern<TypeRef>),
@@ -43,7 +44,7 @@ macro_rules! parser {
     }};
 }
 
-pub fn parse_grammar<'input>(input: &'input str) -> Result<Grammar, ParseError<'input>> {
+pub fn parse_grammar(input: &str) -> Result<Grammar, ParseError<'_>> {
     let mut grammar = parser!(input, 0, Grammar, StartGrammar)?;
 
     // find a unique prefix that does not appear anywhere in the input
@@ -54,28 +55,20 @@ pub fn parse_grammar<'input>(input: &'input str) -> Result<Grammar, ParseError<'
     Ok(grammar)
 }
 
-fn parse_pattern<'input>(
-    input: &'input str,
-    offset: usize,
-) -> Result<Pattern<TypeRef>, ParseError<'input>> {
+fn parse_pattern(input: &str, offset: usize) -> Result<Pattern<TypeRef>, ParseError<'_>> {
     parser!(input, offset, Pattern, StartPattern)
 }
 
-fn parse_match_mapping<'input>(
-    input: &'input str,
-    offset: usize,
-) -> Result<MatchMapping, ParseError<'input>> {
+fn parse_match_mapping(input: &str, offset: usize) -> Result<MatchMapping, ParseError<'_>> {
     parser!(input, offset, MatchMapping, StartMatchMapping)
 }
 
 #[cfg(test)]
-pub fn parse_type_ref<'input>(input: &'input str) -> Result<TypeRef, ParseError<'input>> {
+pub fn parse_type_ref(input: &str) -> Result<TypeRef, ParseError<'_>> {
     parser!(input, 0, TypeRef, StartTypeRef)
 }
 
 #[cfg(test)]
-pub fn parse_where_clauses<'input>(
-    input: &'input str,
-) -> Result<Vec<WhereClause<TypeRef>>, ParseError<'input>> {
+pub fn parse_where_clauses(input: &str) -> Result<Vec<WhereClause<TypeRef>>, ParseError<'_>> {
     parser!(input, 0, GrammarWhereClauses, StartGrammarWhereClauses)
 }

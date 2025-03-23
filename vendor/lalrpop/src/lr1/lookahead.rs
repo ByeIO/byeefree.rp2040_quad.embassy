@@ -1,13 +1,13 @@
-use bit_set::{self, BitSet};
 use crate::collections::Collection;
 use crate::grammar::repr::*;
 use crate::lr1::core::*;
 use crate::lr1::tls::Lr1Tls;
+use bit_set::{self, BitSet};
 use std::fmt::{Debug, Error, Formatter};
 use std::hash::Hash;
 
 pub trait Lookahead: Clone + Debug + Eq + Ord + Hash + Collection<Item = Self> {
-    fn fmt_as_item_suffix(&self, fmt: &mut Formatter) -> Result<(), Error>;
+    fn fmt_as_item_suffix(&self, fmt: &mut Formatter<'_>) -> Result<(), Error>;
 
     fn conflicts<'grammar>(this_state: &State<'grammar, Self>) -> Vec<Conflict<'grammar, Self>>;
 }
@@ -24,7 +24,7 @@ impl Collection for Nil {
 }
 
 impl Lookahead for Nil {
-    fn fmt_as_item_suffix(&self, _fmt: &mut Formatter) -> Result<(), Error> {
+    fn fmt_as_item_suffix(&self, _fmt: &mut Formatter<'_>) -> Result<(), Error> {
         Ok(())
     }
 
@@ -68,13 +68,13 @@ impl Lookahead for Nil {
 /// pseudo-symbol EOF that represents "end of input".
 #[derive(Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Token {
-    EOF,
+    Eof,
     Error,
     Terminal(TerminalString),
 }
 
 impl Lookahead for TokenSet {
-    fn fmt_as_item_suffix(&self, fmt: &mut Formatter) -> Result<(), Error> {
+    fn fmt_as_item_suffix(&self, fmt: &mut Formatter<'_>) -> Result<(), Error> {
         write!(fmt, " {:?}", self)
     }
 
@@ -129,10 +129,13 @@ impl Lookahead for TokenSet {
 }
 
 impl Token {
+    #[deprecated(since = "1.0.0", note = "use `Eof` instead")]
+    pub const EOF: Self = Self::Eof;
+
     pub fn unwrap_terminal(&self) -> &TerminalString {
         match *self {
             Token::Terminal(ref t) => t,
-            Token::EOF | Token::Error => {
+            Token::Eof | Token::Error => {
                 panic!("`unwrap_terminal()` invoked but with EOF or Error")
             }
         }
@@ -181,11 +184,19 @@ impl TokenSet {
     }
 
     fn bit(&self, lookahead: &Token) -> usize {
+        with(|t| self.bit_with(lookahead, t))
+    }
+
+    fn bit_with(&self, lookahead: &Token, terminals: &TerminalSet) -> usize {
         match *lookahead {
-            Token::EOF => self.eof_bit(),
-            Token::Error => self.eof_bit() + 1,
-            Token::Terminal(ref t) => with(|terminals| terminals.bits[t]),
+            Token::Eof => terminals.all.len(),
+            Token::Error => terminals.all.len() + 1,
+            Token::Terminal(ref t) => terminals.bits[t],
         }
+    }
+
+    pub fn reserve(&mut self, len: usize) {
+        self.bit_set.reserve_len(len)
     }
 
     pub fn len(&self) -> usize {
@@ -194,6 +205,11 @@ impl TokenSet {
 
     pub fn insert(&mut self, lookahead: Token) -> bool {
         let bit = self.bit(&lookahead);
+        self.bit_set.insert(bit)
+    }
+
+    pub fn insert_with(&mut self, lookahead: Token, terminals: &TerminalSet) -> bool {
+        let bit = self.bit_with(&lookahead, terminals);
         self.bit_set.insert(bit)
     }
 
@@ -250,7 +266,7 @@ pub struct TokenSetIter<'iter> {
     bit_set: bit_set::Iter<'iter, u32>,
 }
 
-impl<'iter> Iterator for TokenSetIter<'iter> {
+impl Iterator for TokenSetIter<'_> {
     type Item = Token;
 
     fn next(&mut self) -> Option<Token> {
@@ -259,7 +275,7 @@ impl<'iter> Iterator for TokenSetIter<'iter> {
                 if bit == terminals.all.len() + 1 {
                     Token::Error
                 } else if bit == terminals.all.len() {
-                    Token::EOF
+                    Token::Eof
                 } else {
                     Token::Terminal(terminals.all[bit].clone())
                 }
@@ -268,8 +284,8 @@ impl<'iter> Iterator for TokenSetIter<'iter> {
     }
 }
 
-impl<'debug> Debug for TokenSet {
-    fn fmt(&self, fmt: &mut Formatter) -> Result<(), Error> {
+impl Debug for TokenSet {
+    fn fmt(&self, fmt: &mut Formatter<'_>) -> Result<(), Error> {
         let terminals: Vec<_> = self.iter().collect();
         Debug::fmt(&terminals, fmt)
     }

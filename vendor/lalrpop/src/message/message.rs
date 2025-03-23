@@ -1,10 +1,10 @@
-use ascii_canvas::AsciiView;
 use crate::grammar::parse_tree::Span;
 use crate::message::Content;
-use std::cmp;
-use std::fmt::{Debug, Error, Formatter};
 use crate::style::Style;
 use crate::tls::Tls;
+use ascii_canvas::AsciiView;
+use std::cmp;
+use std::fmt::{Debug, Error, Formatter};
 
 /// The top-level message display like this:
 ///
@@ -75,7 +75,7 @@ impl Content for Message {
 }
 
 impl Debug for Message {
-    fn fmt(&self, fmt: &mut Formatter) -> Result<(), Error> {
+    fn fmt(&self, fmt: &mut Formatter<'_>) -> Result<(), Error> {
         fmt.debug_struct("Message")
             .field("span", &self.span)
             .field("heading", &self.heading)

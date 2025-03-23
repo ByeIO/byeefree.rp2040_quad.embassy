@@ -1,8 +1,8 @@
 use crate::grammar::repr::*;
 use crate::lr1::core::*;
-use string_cache::DefaultAtom as Atom;
 use crate::test_util::expect_debug;
 use crate::tls::Tls;
+use string_cache::DefaultAtom as Atom;
 
 macro_rules! nt {
     ($x:ident) => {
@@ -49,7 +49,7 @@ fn enumerator() {
     //    [Y0 X0 (*) X1 Y1]
     //    [Z0 X0 (*) X1 Z1]
 
-    let productions = vec![
+    let productions = [
         production![X = X0 X1],
         production![Y = Y0 X Y1],
         production![Z = Z0 X Z1],
@@ -69,7 +69,7 @@ fn enumerator() {
     let enumerator = graph.lr0_examples(Item::lr0(&productions[0], 1));
     let list: Vec<_> = enumerator.map(|example| example.paint_unstyled()).collect();
     expect_debug(
-        &list,
+        list,
         r#"
 [
     [
@@ -142,7 +142,7 @@ fn enumerator1() {
     let enumerator = graph.lr0_examples(Item::lr0(&productions[0], 2));
     let list: Vec<_> = enumerator.map(|example| example.paint_unstyled()).collect();
     expect_debug(
-        &list,
+        list,
         r#"
 [
     [

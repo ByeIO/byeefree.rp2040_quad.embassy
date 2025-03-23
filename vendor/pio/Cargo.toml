@@ -10,32 +10,45 @@
 # See Cargo.toml.orig for the original contents.
 
 [package]
-edition = "2018"
+edition = "2021"
 name = "pio"
-version = "0.2.1"
+version = "0.3.0"
 authors = [
     "snek",
     "The rp-rs developers",
 ]
+build = false
+autolib = false
+autobins = false
+autoexamples = false
+autotests = false
+autobenches = false
 description = "Support for the Raspberry Silicon RP2040's PIO State Machines."
 readme = "README.md"
 license = "MIT"
 repository = "https://github.com/rp-rs/pio-rs"
 resolver = "2"
 
-[dependencies.arrayvec]
-version = "0.7"
-default_features = false
+[lib]
+name = "pio"
+path = "src/lib.rs"
 
-[dependencies.num_enum]
-version = "0.5"
-default_features = false
+[[test]]
+name = "pico-examples"
+path = "tests/pico-examples.rs"
 
-[dependencies.paste]
-version = "1.0"
+[[test]]
+name = "proc"
+path = "tests/proc.rs"
+
+[dependencies.pio-core]
+version = "0.3.0"
+
+[dependencies.pio-proc]
+version = "0.3.0"
 
 [dev-dependencies.pretty_assertions]
-version = "0.6"
+version = "1.4"
 
 [dev-dependencies.test-generator]
 version = "0.3.0"

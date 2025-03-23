@@ -5,9 +5,9 @@ use crate::lr1::first::FirstSets;
 use crate::lr1::interpret::interpret_partial;
 use crate::lr1::lookahead::{Token, TokenSet};
 use crate::lr1::tls::Lr1Tls;
-use string_cache::DefaultAtom as Atom;
 use crate::test_util::{expect_debug, normalized_grammar};
 use crate::tls::Tls;
+use string_cache::DefaultAtom as Atom;
 
 use super::super::Tracer;
 
@@ -73,7 +73,8 @@ fn backtrace1() {
     let semi_item = states[top_state.0]
         .items
         .vec
-        .iter().find(|item| item.lookahead.contains(&semi))
+        .iter()
+        .find(|item| item.lookahead.contains(&semi))
         .unwrap();
 
     let backtrace = tracer.backtrace_reduce(top_state, semi_item.to_lr0());
@@ -85,7 +86,7 @@ fn backtrace1() {
         .map(|e| e.paint_unstyled())
         .collect();
     expect_debug(
-        &pictures,
+        pictures,
         r#"
 [
     [
@@ -172,7 +173,7 @@ pub Ty: () = {
         .map(|e| e.paint_unstyled())
         .collect();
     expect_debug(
-        &pictures,
+        pictures,
         r#"
 [
     [
@@ -232,7 +233,7 @@ pub Ty: () = {
         .map(|example| example.paint_unstyled())
         .collect();
     expect_debug(
-        &list,
+        list,
         r#"
 [
     [
@@ -292,7 +293,8 @@ fn backtrace_filter() {
     let lr1_item = states[top_state.0]
         .items
         .vec
-        .iter().find(|item| item.lookahead.contains(&semi))
+        .iter()
+        .find(|item| item.lookahead.contains(&semi))
         .unwrap();
 
     let backtrace = tracer.backtrace_reduce(top_state, lr1_item.to_lr0());
@@ -306,7 +308,7 @@ fn backtrace_filter() {
         .map(|e| e.paint_unstyled())
         .collect();
     expect_debug(
-        &pictures,
+        pictures,
         r#"
 [
     [
@@ -349,7 +351,7 @@ fn backtrace_filter() {
         .map(|e| e.paint_unstyled())
         .collect();
     expect_debug(
-        &pictures,
+        pictures,
         r#"
 [
     [

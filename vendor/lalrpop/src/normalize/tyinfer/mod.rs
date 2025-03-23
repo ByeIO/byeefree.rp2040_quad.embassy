@@ -20,13 +20,13 @@ pub fn infer_types(grammar: &Grammar) -> NormResult<Types> {
 
 struct TypeInferencer<'grammar> {
     stack: Vec<NonterminalString>,
-    nonterminals: HashMap<NonterminalString, NT<'grammar>>,
+    nonterminals: HashMap<NonterminalString, Nt<'grammar>>,
     types: Types,
     type_parameters: HashSet<Atom>,
 }
 
 #[derive(Copy, Clone)]
-struct NT<'grammar> {
+struct Nt<'grammar> {
     span: Span,
     type_decl: &'grammar Option<TypeRef>,
     alternatives: &'grammar Vec<Alternative>,
@@ -42,7 +42,7 @@ impl<'grammar> TypeInferencer<'grammar> {
             .filter_map(GrammarItem::as_nonterminal)
             .map(|data| {
                 assert!(!data.is_macro_def()); // normalized away by now
-                (data.name.clone(), NT::new(data))
+                (data.name.clone(), Nt::new(data))
             })
             .collect();
 
@@ -145,8 +145,7 @@ impl<'grammar> TypeInferencer<'grammar> {
     }
 
     fn infer_types(mut self) -> NormResult<Types> {
-        let ids: Vec<NonterminalString> =
-            self.nonterminals.iter().map(|(id, _)| id.clone()).collect();
+        let ids: Vec<NonterminalString> = self.nonterminals.keys().cloned().collect();
 
         for id in ids {
             self.nonterminal_type(&id)?;
@@ -233,7 +232,7 @@ impl<'grammar> TypeInferencer<'grammar> {
 
     fn push<F, R>(&mut self, id: &NonterminalString, f: F) -> NormResult<R>
     where
-        F: FnOnce(&mut TypeInferencer) -> NormResult<R>,
+        F: FnOnce(&mut TypeInferencer<'_>) -> NormResult<R>,
     {
         self.stack.push(id.clone());
         let r = f(self);
@@ -373,9 +372,9 @@ impl<'grammar> TypeInferencer<'grammar> {
     }
 }
 
-impl<'grammar> NT<'grammar> {
-    fn new(data: &'grammar NonterminalData) -> NT<'grammar> {
-        NT {
+impl<'grammar> Nt<'grammar> {
+    fn new(data: &'grammar NonterminalData) -> Nt<'grammar> {
+        Nt {
             span: data.span,
             type_decl: &data.type_decl,
             alternatives: &data.alternatives,

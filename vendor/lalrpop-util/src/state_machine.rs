@@ -1,5 +1,8 @@
-#![allow(dead_code)]
-
+#![doc(hidden)]
+//! State machine for use by lalrpop generated parsers
+//!
+//! This provides grammar-independent state machine support for generated parsers.  It is intended
+//! to be linked by the generated parser, not used directly by users.
 use alloc::{string::String, vec, vec::Vec};
 use core::fmt::Debug;
 
@@ -104,6 +107,14 @@ pub trait ParserDefinition: Sized {
     /// error reporting.
     fn expected_tokens(&self, state: Self::StateIndex) -> Vec<String>;
 
+    /// Returns the expected tokens in a given state. This is used in the
+    /// same way as `expected_tokens` but allows more precise reporting
+    /// of accepted tokens in some cases.
+    fn expected_tokens_from_states(&self, states: &[Self::StateIndex]) -> Vec<String> {
+        // Default to using the preexisting `expected_tokens` method
+        self.expected_tokens(*states.last().unwrap())
+    }
+
     /// True if this grammar supports error recovery.
     fn uses_error_recovery(&self) -> bool;
 
@@ -197,7 +208,7 @@ where
 
 enum NextToken<D: ParserDefinition> {
     FoundToken(TokenTriple<D>, D::TokenIndex),
-    EOF,
+    Eof,
     Done(ParseResult<D>),
 }
 
@@ -231,7 +242,7 @@ where
         'shift: loop {
             let (mut lookahead, mut token_index) = match self.next_token() {
                 NextToken::FoundToken(l, i) => (l, i),
-                NextToken::EOF => return self.parse_eof(),
+                NextToken::Eof => return self.parse_eof(),
                 NextToken::Done(e) => return e,
             };
 
@@ -271,7 +282,7 @@ where
                             token_index = i;
                             continue 'inner;
                         }
-                        NextToken::EOF => return self.parse_eof(),
+                        NextToken::Eof => return self.parse_eof(),
                         NextToken::Done(e) => return e,
                     }
                 }
@@ -295,7 +306,7 @@ where
                 match self.error_recovery(None, None) {
                     NextToken::FoundToken(..) => panic!("cannot find token at EOF"),
                     NextToken::Done(e) => return e,
-                    NextToken::EOF => continue,
+                    NextToken::Eof => continue,
                 }
             }
         }
@@ -315,11 +326,11 @@ where
             debug!("\\ error -- no error recovery!");
 
             return NextToken::Done(Err(
-                self.unrecognized_token_error(opt_lookahead, self.top_state())
+                self.unrecognized_token_error(opt_lookahead, &self.states)
             ));
         }
 
-        let error = self.unrecognized_token_error(opt_lookahead.clone(), self.top_state());
+        let error = self.unrecognized_token_error(opt_lookahead.clone(), &self.states);
 
         let mut dropped_tokens = vec![];
 
@@ -400,7 +411,7 @@ where
                             opt_lookahead = Some(next_lookahead);
                             opt_token_index = Some(next_token_index);
                         }
-                        NextToken::EOF => {
+                        NextToken::Eof => {
                             debug!("\\\\\\ reached EOF");
                             opt_lookahead = None;
                             opt_token_index = None;
@@ -503,7 +514,7 @@ where
 
         match (opt_lookahead, opt_token_index) {
             (Some(l), Some(i)) => NextToken::FoundToken(l, i),
-            (None, None) => NextToken::EOF,
+            (None, None) => NextToken::Eof,
             (l, i) => panic!("lookahead and token_index mismatched: {:?}, {:?}", l, i),
         }
     }
@@ -592,16 +603,16 @@ where
     fn unrecognized_token_error(
         &self,
         token: Option<TokenTriple<D>>,
-        top_state: D::StateIndex,
+        states: &[D::StateIndex],
     ) -> ParseError<D> {
         match token {
             Some(token) => crate::ParseError::UnrecognizedToken {
                 token,
-                expected: self.definition.expected_tokens(top_state),
+                expected: self.definition.expected_tokens_from_states(states),
             },
-            None => crate::ParseError::UnrecognizedEOF {
+            None => crate::ParseError::UnrecognizedEof {
                 location: self.last_location.clone(),
-                expected: self.definition.expected_tokens(top_state),
+                expected: self.definition.expected_tokens_from_states(states),
             },
         }
     }
@@ -613,7 +624,7 @@ where
         let token = match self.tokens.next() {
             Some(Ok(v)) => v,
             Some(Err(e)) => return NextToken::Done(Err(e)),
-            None => return NextToken::EOF,
+            None => return NextToken::Eof,
         };
 
         self.last_location = token.2.clone();
@@ -622,7 +633,7 @@ where
             Some(i) => i,
             None => {
                 return NextToken::Done(Err(
-                    self.unrecognized_token_error(Some(token), self.top_state())
+                    self.unrecognized_token_error(Some(token), &self.states)
                 ))
             }
         };

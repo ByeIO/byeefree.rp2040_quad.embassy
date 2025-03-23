@@ -440,7 +440,10 @@ fn default_value() {
     assert_eq!(two, Ok(Enum::Other));
 
     let max_value: Result<Enum, _> = u8::max_value().try_into();
-    assert_eq!(max_value, Ok(Enum::Other));
+    assert_eq!(
+        max_value.unwrap_err().to_string(),
+        "No discriminant in enum `Enum` matches the value `255`"
+    );
 }
 
 #[test]
@@ -472,7 +475,10 @@ fn alternative_values_and_default_value() {
     assert_eq!(four, Ok(Enum::Four));
 
     let five: Result<Enum, _> = 5u8.try_into();
-    assert_eq!(five, Ok(Enum::Zero));
+    assert_eq!(
+        five.unwrap_err().to_string(),
+        "No discriminant in enum `Enum` matches the value `5`"
+    );
 }
 
 #[test]
@@ -494,6 +500,47 @@ fn try_from_primitive_number() {
 
     let try_from = Enum::try_from(0_u8);
     assert_eq!(try_from, Ok(Enum::Whatever));
+}
+
+#[test]
+fn custom_error() {
+    #[derive(Debug, Eq, PartialEq, TryFromPrimitive)]
+    #[num_enum(error_type(name = CustomError, constructor = CustomError::new))]
+    #[repr(u8)]
+    enum FirstNumber {
+        Zero,
+        One,
+        Two,
+    }
+
+    #[derive(Debug, Eq, PartialEq, TryFromPrimitive)]
+    #[num_enum(error_type(constructor = CustomError::new, name = CustomError))]
+    #[repr(u8)]
+    enum SecondNumber {
+        Zero,
+        One,
+        Two,
+    }
+
+    #[derive(Debug, PartialEq, Eq)]
+    struct CustomError {
+        bad_value: u8,
+    }
+
+    impl CustomError {
+        fn new(value: u8) -> CustomError {
+            CustomError { bad_value: value }
+        }
+    }
+
+    let zero: Result<FirstNumber, _> = 0u8.try_into();
+    assert_eq!(zero, Ok(FirstNumber::Zero));
+
+    let three: Result<FirstNumber, _> = 3u8.try_into();
+    assert_eq!(three.unwrap_err(), CustomError { bad_value: 3u8 });
+
+    let three: Result<SecondNumber, _> = 3u8.try_into();
+    assert_eq!(three.unwrap_err(), CustomError { bad_value: 3u8 });
 }
 
 // #[derive(FromPrimitive)] generates implementations for the following traits:

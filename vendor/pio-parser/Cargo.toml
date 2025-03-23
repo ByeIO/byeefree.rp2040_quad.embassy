@@ -10,30 +10,35 @@
 # See Cargo.toml.orig for the original contents.
 
 [package]
-edition = "2018"
+edition = "2021"
 name = "pio-parser"
-version = "0.2.2"
+version = "0.3.0"
 authors = [
     "snek",
     "The rp-rs Developers",
 ]
+build = "build.rs"
+autolib = false
+autobins = false
+autoexamples = false
+autotests = false
+autobenches = false
 description = "Raspberry Silicon PIO asm parser"
 readme = "README.md"
 license = "MIT"
 repository = "https://github.com/rp-rs/pio-rs"
 resolver = "2"
 
+[lib]
+name = "pio_parser"
+path = "src/lib.rs"
+
 [dependencies.lalrpop-util]
-version = "0.19.6"
+version = "0.22.0"
 features = ["lexer"]
 
-[dependencies.pio]
-version = "0.2.1"
+[dependencies.pio-core]
+version = "0.3.0"
 
 [build-dependencies.lalrpop]
-version = "0.19.6"
-
-[build-dependencies.regex-syntax]
-version = "0.6"
-features = ["unicode"]
-default_features = false
+version = "0.22.0"

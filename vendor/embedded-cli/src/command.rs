@@ -1,0 +1,175 @@
+use core::marker::PhantomData;
+
+use embedded_io::Write;
+
+use crate::{
+    arguments::ArgList,
+    cli::CliHandle,
+    service::{Autocomplete, CommandProcessor, FromRaw, Help, ParseError, ProcessError},
+    token::Tokens,
+};
+
+#[cfg(feature = "autocomplete")]
+use crate::autocomplete::{Autocompletion, Request};
+
+#[cfg(feature = "help")]
+use crate::service::HelpError;
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct RawCommand<'a> {
+    /// Name of the command.
+    ///
+    /// In `set led 1 1` name is `set`
+    name: &'a str,
+
+    /// Argument list of the command
+    ///
+    /// In `set led 1 1` arguments is `led 1 1`
+    args: ArgList<'a>,
+}
+
+impl<'a> RawCommand<'a> {
+    /// Crate raw command from input tokens
+    pub(crate) fn from_tokens(tokens: &Tokens<'a>) -> Option<Self> {
+        let mut iter = tokens.iter();
+        let name = iter.next()?;
+        let tokens = iter.into_tokens();
+
+        Some(RawCommand {
+            name,
+            args: ArgList::new(tokens),
+        })
+    }
+
+    pub fn new(name: &'a str, args: ArgList<'a>) -> Self {
+        Self { name, args }
+    }
+
+    pub fn args(&self) -> ArgList<'a> {
+        self.args.clone()
+    }
+
+    pub fn name(&self) -> &'a str {
+        self.name
+    }
+
+    pub fn processor<
+        W: Write<Error = E>,
+        E: embedded_io::Error,
+        F: FnMut(&mut CliHandle<'_, W, E>, RawCommand<'_>) -> Result<(), E>,
+    >(
+        f: F,
+    ) -> impl CommandProcessor<W, E> {
+        struct Processor<
+            W: Write<Error = E>,
+            E: embedded_io::Error,
+            F: FnMut(&mut CliHandle<'_, W, E>, RawCommand<'_>) -> Result<(), E>,
+        > {
+            f: F,
+            _ph: PhantomData<(W, E)>,
+        }
+
+        impl<
+                W: Write<Error = E>,
+                E: embedded_io::Error,
+                F: FnMut(&mut CliHandle<'_, W, E>, RawCommand<'_>) -> Result<(), E>,
+            > CommandProcessor<W, E> for Processor<W, E, F>
+        {
+            fn process<'a>(
+                &mut self,
+                cli: &mut CliHandle<'_, W, E>,
+                raw: RawCommand<'a>,
+            ) -> Result<(), ProcessError<'a, E>> {
+                (self.f)(cli, raw)?;
+                Ok(())
+            }
+        }
+
+        Processor {
+            f,
+            _ph: PhantomData,
+        }
+    }
+}
+
+impl<'a> Autocomplete for RawCommand<'a> {
+    #[cfg(feature = "autocomplete")]
+    fn autocomplete(_: Request<'_>, _: &mut Autocompletion<'_>) {
+        // noop
+    }
+}
+
+impl<'a> Help for RawCommand<'a> {
+    #[cfg(feature = "help")]
+    fn command_count() -> usize {
+        0
+    }
+
+    #[cfg(feature = "help")]
+    fn list_commands<W: Write<Error = E>, E: embedded_io::Error>(
+        _: &mut crate::writer::Writer<'_, W, E>,
+    ) -> Result<(), E> {
+        // noop
+        Ok(())
+    }
+
+    #[cfg(feature = "help")]
+    fn command_help<
+        W: Write<Error = E>,
+        E: embedded_io::Error,
+        F: FnMut(&mut crate::writer::Writer<'_, W, E>) -> Result<(), E>,
+    >(
+        _: &mut F,
+        _: RawCommand<'_>,
+        _: &mut crate::writer::Writer<'_, W, E>,
+    ) -> Result<(), HelpError<E>> {
+        // noop
+        Err(HelpError::UnknownCommand)
+    }
+}
+
+impl<'a> FromRaw<'a> for RawCommand<'a> {
+    fn parse(raw: RawCommand<'a>) -> Result<Self, ParseError<'a>> {
+        Ok(raw)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use rstest::rstest;
+
+    use crate::{arguments::ArgList, command::RawCommand, token::Tokens};
+
+    #[rstest]
+    #[case("set led 1", "set", "led 1")]
+    #[case("  get   led   2  ", "get", "led   2")]
+    #[case("get", "get", "")]
+    #[case("set led 1", "set", "led 1")]
+    fn parsing_some(#[case] input: &str, #[case] name: &str, #[case] args: &str) {
+        let mut input = input.as_bytes().to_vec();
+        let input = core::str::from_utf8_mut(&mut input).unwrap();
+        let input_tokens = Tokens::new(input);
+        let mut args = args.as_bytes().to_vec();
+        let args = core::str::from_utf8_mut(&mut args).unwrap();
+        let arg_tokens = Tokens::new(args);
+
+        assert_eq!(
+            RawCommand::from_tokens(&input_tokens).unwrap(),
+            RawCommand {
+                name: name,
+                args: ArgList::new(arg_tokens)
+            }
+        );
+    }
+
+    #[rstest]
+    #[case("   ")]
+    #[case("")]
+    fn parsing_none(#[case] input: &str) {
+        let mut input = input.as_bytes().to_vec();
+        let input = core::str::from_utf8_mut(&mut input).unwrap();
+        let tokens = Tokens::new(input);
+
+        assert!(RawCommand::from_tokens(&tokens).is_none());
+    }
+}

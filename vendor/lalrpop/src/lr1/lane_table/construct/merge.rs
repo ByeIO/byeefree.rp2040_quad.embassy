@@ -1,9 +1,9 @@
 use crate::collections::{Map, Multimap, Set};
-use ena::unify::InPlaceUnificationTable;
-use crate::lr1::core::{Action, LR1State, StateIndex};
+use crate::lr1::core::{Action, Lr1State, StateIndex};
 use crate::lr1::lane_table::construct::state_set::StateSet;
 use crate::lr1::lane_table::table::context_set::ContextSet;
 use crate::lr1::lane_table::table::LaneTable;
+use ena::unify::InPlaceUnificationTable;
 
 /// The "merge" phase of the algorithm is described in "Step 3c" of
 /// [the README][r].  It consists of walking through the various
@@ -14,9 +14,9 @@ use crate::lr1::lane_table::table::LaneTable;
 /// set of S will be compatible with the reduced context of T2).
 ///
 /// [r]: ../README.md
-pub struct Merge<'m, 'grammar: 'm> {
+pub struct Merge<'m, 'grammar> {
     table: &'m LaneTable<'grammar>,
-    states: &'m mut Vec<LR1State<'grammar>>,
+    states: &'m mut Vec<Lr1State<'grammar>>,
     visited: Set<StateIndex>,
     original_indices: Map<StateIndex, StateIndex>,
     clones: Multimap<StateIndex, Vec<StateIndex>>,
@@ -28,7 +28,7 @@ impl<'m, 'grammar> Merge<'m, 'grammar> {
     pub fn new(
         table: &'m LaneTable<'grammar>,
         unify: &'m mut InPlaceUnificationTable<StateSet>,
-        states: &'m mut Vec<LR1State<'grammar>>,
+        states: &'m mut Vec<Lr1State<'grammar>>,
         state_sets: &'m mut Map<StateIndex, StateSet>,
         inconsistent_state: StateIndex,
     ) -> Self {
@@ -192,13 +192,14 @@ struct ContextSets<'m> {
     unify: &'m mut InPlaceUnificationTable<StateSet>,
 }
 
-impl<'m> ContextSets<'m> {
+impl ContextSets<'_> {
     fn context_set(&mut self, state: StateIndex) -> ContextSet {
         let state_set = self.state_sets[&state];
         self.unify.probe_value(state_set)
     }
 
     fn union(&mut self, source: StateIndex, target: StateIndex) -> bool {
+        debug!("state_sets: {:?}", self.state_sets);
         let set1 = self.state_sets[&source];
         let set2 = self.state_sets[&target];
         let result = self.unify.unify_var_var(set1, set2).is_ok();

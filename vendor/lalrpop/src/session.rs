@@ -3,15 +3,15 @@
 //! crate. Note that all fields are public and so forth for convenience.
 
 use crate::log::{Level, Log};
+use crate::style::{self, Style};
 use std::collections::BTreeSet;
 use std::default::Default;
 use std::path;
-use crate::style::{self, Style};
 
 // These two, ubiquitous types are defined here so that their fields can be private
 // across crate, but visible within the crate:
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Default)]
 pub enum ColorConfig {
     /// Use ANSI colors.
     Yes,
@@ -20,6 +20,7 @@ pub enum ColorConfig {
     No,
 
     /// Use them if we detect a TTY output (default).
+    #[default]
     IfTty,
 }
 
@@ -56,6 +57,10 @@ pub struct Session {
     /// report *all* errors. Note that we MAY always report more than
     /// this value if we so choose.
     pub max_errors: usize,
+
+    /// Limit of depth to discover macros needing resolution.  Ensures that compilation terminates
+    /// in a finite number of steps.
+    pub macro_recursion_limit: u16,
 
     // Styles to use when formatting error reports
     /// Applied to the heading in a message.
@@ -103,6 +108,7 @@ impl Session {
             emit_report: false,
             color_config: ColorConfig::default(),
             max_errors: 1,
+            macro_recursion_limit: 200,
             heading: style::FG_WHITE.with(style::BOLD),
             ambig_symbols: style::FG_WHITE,
             observed_symbols: style::FG_BRIGHT_GREEN,
@@ -130,6 +136,7 @@ impl Session {
             emit_report: false,
             color_config: ColorConfig::IfTty,
             max_errors: 1,
+            macro_recursion_limit: 200,
             heading: Style::new(),
             ambig_symbols: Style::new(),
             observed_symbols: Style::new(),
@@ -170,11 +177,5 @@ impl Session {
 impl Default for Session {
     fn default() -> Self {
         Session::new()
-    }
-}
-
-impl Default for ColorConfig {
-    fn default() -> Self {
-        ColorConfig::IfTty
     }
 }

@@ -51,12 +51,21 @@ fn lower_helper(session: &Session, grammar: pt::Grammar, validate: bool) -> Norm
             prevalidate::validate(&grammar)?;
         }
     );
+    let grammar = profile!(
+        session,
+        "Conditional compilation",
+        cond_comp::remove_disabled_decls(session, grammar)?
+    );
     let grammar = profile!(session, "Grammar resolution", resolve::resolve(grammar)?);
-    let grammar = profile!(session, "Precedence expansion", precedence::expand_precedence(grammar)?);
+    let grammar = profile!(
+        session,
+        "Precedence expansion",
+        precedence::expand_precedence(grammar)?
+    );
     let grammar = profile!(
         session,
         "Macro expansion",
-        macro_expand::expand_macros(grammar)?
+        macro_expand::expand_macros(grammar, session.macro_recursion_limit)?
     );
     let grammar = profile!(session, "Token check", token_check::validate(grammar)?);
     let types = profile!(session, "Infer types", tyinfer::infer_types(&grammar)?);
@@ -68,6 +77,9 @@ fn lower_helper(session: &Session, grammar: pt::Grammar, validate: bool) -> Norm
 
 // Check most safety conditions.
 mod prevalidate;
+
+// Eliminate nonterminals with cfg directives that evaluate to false.
+mod cond_comp;
 
 // Resolve identifiers into terminals/nonterminals etc.
 mod resolve;

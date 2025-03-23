@@ -4,9 +4,9 @@ use crate::generate::ParseTree;
 use crate::grammar::repr::*;
 use crate::lr1::core::*;
 use crate::lr1::lookahead::*;
+use crate::util::Sep;
 use std::fmt::{Debug, Display, Error, Formatter};
 use std::iter::IntoIterator;
-use crate::util::Sep;
 
 pub type InterpretError<'grammar, L> = (&'grammar State<'grammar, L>, Token);
 
@@ -37,7 +37,7 @@ where
     Ok(m.state_stack)
 }
 
-struct Machine<'grammar, L: LookaheadInterpret + 'grammar> {
+struct Machine<'grammar, L: LookaheadInterpret> {
     states: &'grammar [State<'grammar, L>],
     state_stack: Vec<StateIndex>,
     data_stack: Vec<ParseTree>,
@@ -105,9 +105,9 @@ where
         // drain now for EOF
         loop {
             let state = self.top_state();
-            match L::reduction(state, &Token::EOF) {
+            match L::reduction(state, &Token::Eof) {
                 None => {
-                    return Err((state, Token::EOF));
+                    return Err((state, Token::Eof));
                 }
                 Some(production) => {
                     if !self.reduce(production) {
@@ -155,13 +155,13 @@ where
 }
 
 impl Debug for ParseTree {
-    fn fmt(&self, fmt: &mut Formatter) -> Result<(), Error> {
+    fn fmt(&self, fmt: &mut Formatter<'_>) -> Result<(), Error> {
         Display::fmt(self, fmt)
     }
 }
 
 impl Display for ParseTree {
-    fn fmt(&self, fmt: &mut Formatter) -> Result<(), Error> {
+    fn fmt(&self, fmt: &mut Formatter<'_>) -> Result<(), Error> {
         match *self {
             ParseTree::Nonterminal(ref id, ref trees) => {
                 write!(fmt, "[{}: {}]", id, Sep(", ", trees))
@@ -199,7 +199,7 @@ impl LookaheadInterpret for TokenSet {
         state
             .reductions
             .iter()
-            .filter(|&&(ref tokens, _)| tokens.contains(token))
+            .filter(|&(tokens, _)| tokens.contains(token))
             .map(|&(_, production)| production)
             .next()
     }
