@@ -84,3 +84,25 @@ pub type ImuReadingType = crate::types::sensor::Imu10DofData<f32>;
 pub type ImuReadingPub = Pub<ImuReadingType,IMU_READING_NUM>;
 pub type ImuReadingSub = Sub<ImuReadingType,IMU_READING_NUM>;
 pub static IMU_READING : Ch<ImuReadingType,IMU_READING_NUM> = PubSubChannel::new();
+
+// 4. filters任务的信道
+/// 十轴传感器滤波器信道
+const IMU_FILTER_NUM: usize = 2;
+pub type ImuFilterType = crate::types::sensor::Imu10DofData<f32>;
+pub type ImuFilterPub = Pub<ImuFilterType,IMU_FILTER_NUM>;
+pub type ImuFilterSub = Sub<ImuFilterType,IMU_FILTER_NUM>;
+pub static IMU_FILTER : Ch<ImuFilterType,IMU_FILTER_NUM> = PubSubChannel::new();
+
+// 5. 飞行控制器任务的信道
+const FLIGHT_NUM: usize = 8;
+use crate::utils::types::flight::FlightType;
+pub type FlightPub = Pub<FlightType,FLIGHT_NUM>;
+pub type FlightSub = Sub<FlightType,FLIGHT_NUM>;
+pub static FLIGHT_CHANNEL : Ch<FlightType,FLIGHT_NUM> = PubSubChannel::new();
+
+// 6. 姿态控制器任务的信道
+const CONTROLLER_NUM: usize = 8;
+pub type ControllerType = crate::types::sensor::Imu10DofData<f32>;
+pub type ControllerPub = Pub<ControllerType,CONTROLLER_NUM>;
+pub type ControllerSub = Sub<ControllerType,CONTROLLER_NUM>;
+pub static CONTROLLER_CHANNEL : Ch<ControllerType,CONTROLLER_NUM> = PubSubChannel::new();

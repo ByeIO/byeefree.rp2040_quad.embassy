@@ -42,7 +42,7 @@ impl AtkMs901m {
         let frame_index = Self::find_all_valid_frames(&dma_buffer, &mut state_machine, frames).await;
         
         // 打印获取到的总数量
-        defmt::println!("imu : get_all_valid_frames -> total: {} frames", frame_index);
+        // defmt::println!("imu : get_all_valid_frames -> total: {} frames", frame_index);
         // 返回有效帧数量
         frame_index
     }
@@ -143,7 +143,7 @@ impl AtkMs901m {
             mag: [mag_data.x as f32, mag_data.y as f32, mag_data.z as f32],
             pressure: [baro_data.pressure as f32],
             quat: [quat_data.q0, quat_data.q1, quat_data.q2, quat_data.q3],
-            attitude: [baro_data.altitude as f32],
+            altitude: [baro_data.altitude as f32],
             temperature: [baro_data.temperature],
         }
     }
@@ -307,9 +307,9 @@ impl AtkMs901m {
     }
 
     /// 获取高度
-    pub async fn get_attitude(
+    pub async fn get_altitude(
         &mut self,
-        attitude_dat: &mut AtkMs901mAttitudeData,
+        altitude_dat: &mut AtkMs901maltitudeData,
         timeout: u32,
     ) -> Result<(), AtkMs901mError> {
         let mut frame = AtkMs901mFrame::default();
@@ -320,9 +320,9 @@ impl AtkMs901m {
             ATK_MS901M_FRAME_ID_TYPE_UPLOAD,
             timeout,
         ).await.is_ok() {
-            attitude_dat.roll = ((frame.dat[1] as i16) << 8 | frame.dat[0] as i16) as f32 / 32768.0 * 180.0;
-            attitude_dat.pitch = ((frame.dat[3] as i16) << 8 | frame.dat[2] as i16) as f32 / 32768.0 * 180.0;
-            attitude_dat.yaw = ((frame.dat[5] as i16) << 8 | frame.dat[4] as i16) as f32 / 32768.0 * 180.0;
+            altitude_dat.roll = ((frame.dat[1] as i16) << 8 | frame.dat[0] as i16) as f32 / 32768.0 * 180.0;
+            altitude_dat.pitch = ((frame.dat[3] as i16) << 8 | frame.dat[2] as i16) as f32 / 32768.0 * 180.0;
+            altitude_dat.yaw = ((frame.dat[5] as i16) << 8 | frame.dat[4] as i16) as f32 / 32768.0 * 180.0;
             Ok(())
         } else {
             Err(AtkMs901mError::Error)

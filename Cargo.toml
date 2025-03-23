@@ -81,6 +81,9 @@ bye_rp2040_multi_uart_pio_rs = { path = "./static/bye_rp2040_multi_uart_pio_rs" 
 # 单元测试
 defmt-test = "0.3.3"
 
+# 元编程/宏编程
+paste = "1.0.15"
+
 # [dev-dependencies]
 # # 单元测试
 # defmt-test = "0.3.3"

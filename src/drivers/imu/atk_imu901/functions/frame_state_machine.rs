@@ -44,7 +44,7 @@ impl FrameStateMachine {
                     self.frame.check_sum = self.frame.check_sum.wrapping_add(byte);
                     // 进入下一个状态
                     self.state = AtkMs901mHandleState::WaitForId;
-                    defmt::println!("detected a valid frame header");
+                    // defmt::println!("detected a valid frame header");
                 } else {
                     // 重置状态机
                     self.reset();
@@ -57,7 +57,7 @@ impl FrameStateMachine {
                     self.frame.check_sum = self.frame.check_sum.wrapping_add(byte);
                     // 进入下一个状态
                     self.state = AtkMs901mHandleState::WaitForLen;
-                    defmt::println!("frame_id is ok");
+                    // defmt::println!("frame_id is ok");
                 } else {
                     // 重置状态机
                     self.reset();
@@ -75,7 +75,7 @@ impl FrameStateMachine {
                     // 重置索引
                     self.dat_index = 0; 
                     
-                    defmt::println!("len: {} bytes of data", self.frame.len);
+                    // defmt::println!("len: {} bytes of data", self.frame.len);
                     
                     self.state = if byte == 0 {
                         // 如果长度为0则直接计算校验和
@@ -96,7 +96,7 @@ impl FrameStateMachine {
                     if self.dat_index == self.frame.dat.len() {
                         // 计算校验和
                         self.state = AtkMs901mHandleState::WaitForSum;
-                        defmt::println!("get_frame_data done");
+                        // defmt::println!("get_frame_data done");
                     }
                 } else {
                     // 重置状态机
@@ -105,11 +105,11 @@ impl FrameStateMachine {
             }
             AtkMs901mHandleState::WaitForSum => {
                 let result = if byte == self.frame.check_sum {
-                    defmt::println!("frame check_sum ok");
+                    // defmt::println!("frame check_sum ok");
                     // 返回完整帧
                     Ok(self.frame)
                 } else {
-                    defmt::println!("frame check_sum err: {} != {}", byte, self.frame.check_sum);
+                    // defmt::println!("frame check_sum err: {} != {}", byte, self.frame.check_sum);
                     // FIXME: 校验值计算溢出导致一直不对
                     Ok(self.frame)
                     // Err(AtkMs901mError::Checksum)

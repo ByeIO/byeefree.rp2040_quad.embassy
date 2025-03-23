@@ -18,3 +18,6 @@ pub mod sbus;
 
 // 7. shell交互式命令行
 pub mod shell;
+
+// 8. (内置)控制器
+pub mod controllers;

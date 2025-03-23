@@ -26,6 +26,8 @@ use embassy_rp::peripherals::PIN_17;
 
 // 打印调试信息
 use defmt::{info, panic};
+use num_traits::signum;
+use tasks::filters::filter_task;
 use { defmt_rtt as _, panic_probe as _ };
 
 // 内存分配相关
@@ -159,6 +161,18 @@ async fn main(_spawner: Spawner) {
         // 微空飞控塔(预留)
         p.PIN_2,
     ).await;
+    
+    // 6. 滤波器任务
+    use crate::tasks::filters::filter_task;
+    _spawner.must_spawn(
+        filter_task(
+            signals::IMU_READING.subscriber().unwrap(),
+            signals::IMU_FILTER.publisher().unwrap())
+    );
+    
+    // 7. 飞行模式管理任务
+    use crate::tasks::flights::flight_task_launcher;
+    flight_task_launcher(&_spawner).await;
     /* end 启动任务 */
     
     /* end 初始化 */

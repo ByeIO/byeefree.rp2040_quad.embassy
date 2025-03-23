@@ -28,7 +28,7 @@
 #define ATK_MS901M_FRAME_DAT_MAX_SIZE       28
 
 /* ATK-MS901M主动上传帧ID */
-#define ATK_MS901M_FRAME_ID_ATTITUDE        0x01    /* 姿态角 */
+#define ATK_MS901M_FRAME_ID_altitude        0x01    /* 姿态角 */
 #define ATK_MS901M_FRAME_ID_QUAT            0x02    /* 四元数 */
 #define ATK_MS901M_FRAME_ID_GYRO_ACCE       0x03    /* 陀螺仪、加速度计 */
 #define ATK_MS901M_FRAME_ID_MAG             0x04    /* 磁力计 */
@@ -72,7 +72,7 @@ typedef struct
     float roll;                                     /* 横滚角，单位：° */
     float pitch;                                    /* 俯仰角，单位：° */
     float yaw;                                      /* 航向角，单位：° */
-} atk_ms901m_attitude_data_t;
+} atk_ms901m_altitude_data_t;
 
 /* 四元数数据结构体 */
 typedef struct
@@ -173,7 +173,7 @@ typedef enum
 uint8_t atk_ms901m_read_reg_by_id(uint8_t id, uint8_t *dat, uint32_t timeout);                                                                      /* 通过帧ID读取ATK-MS901M寄存器 */
 uint8_t atk_ms901m_write_reg_by_id(uint8_t id, uint8_t len, uint8_t *dat);                                                                          /* 通过帧ID写入ATK-MS901M寄存器 */
 uint8_t atk_ms901m_init(uint32_t baudrate);                                                                                                         /* ATK-MS901M初始化 */
-uint8_t atk_ms901m_get_attitude(atk_ms901m_attitude_data_t *attitude_dat, uint32_t timeout);                                                        /* 获取ATK-MS901M姿态角数据 */
+uint8_t atk_ms901m_get_altitude(atk_ms901m_altitude_data_t *altitude_dat, uint32_t timeout);                                                        /* 获取ATK-MS901M姿态角数据 */
 uint8_t atk_ms901m_get_quaternion(atk_ms901m_quaternion_data_t *quaternion_dat, uint32_t timeout);                                                  /* 获取ATK-MS901M四元数数据 */
 uint8_t atk_ms901m_get_gyro_accelerometer(atk_ms901m_gyro_data_t *gyro_dat, atk_ms901m_accelerometer_data_t *accelerometer_dat, uint32_t timeout);  /* 获取ATK-MS901M陀螺仪、加速度计数据 */
 uint8_t atk_ms901m_get_magnetometer(atk_ms901m_magnetometer_data_t *magnetometer_dat, uint32_t timeout);                                            /* 获取ATK-MS901M磁力计数据 */

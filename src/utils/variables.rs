@@ -95,7 +95,7 @@ static IMU_10DOF_DATA: Mutex<ThreadModeRawMutex, Imu10DofData<f32>> = Mutex::new
     mag: [0.0; 3],
     pressure: [0.0; 1],
     quat: [0.0; 4],
-    attitude: [0.0; 1],
+    altitude: [0.0; 1],
     temperature: [0.0; 1],
 });
 
@@ -125,3 +125,36 @@ impl Imu10DofDataEditor {
     }
 }
 /* end 10轴传感器 */
+
+/* start 当前飞行状态 */
+use crate::utils::types::flight::{ FlightModeEnum, FlightType};
+
+// 当前飞行状态, 使用异步Mutex保护
+static FLIGHT_MODE: Mutex<ThreadModeRawMutex, FlightType> = Mutex::new(
+    FlightType {
+        // 默认为Ready状态
+        mode: FlightModeEnum::Ready,
+        altitude: 0,
+        angle: 0,
+        time: 0,
+        radius: 0,
+    }
+);
+
+///当前飞行状态操作接口
+pub struct FlightModeEditor;
+
+impl FlightModeEditor {
+    /// 异步获取当前飞行状态(拷贝值返回)
+    pub async fn get_data() -> FlightType {
+        let guard = FLIGHT_MODE.lock().await;
+        *guard
+    }
+
+    /// 异步更新当前飞行状态
+    pub async fn write_data(data: FlightType) {
+        let mut guard = FLIGHT_MODE.lock().await;
+        *guard = data;
+    }
+}
+/* end 当前飞行状态 */

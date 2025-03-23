@@ -216,7 +216,7 @@ impl From<embassy_rp::uart::Error> for AtkMs901mError {
 /* start 结构体 */
 /// 姿态角数据结构体
 #[derive(Debug, Clone, Copy, Default)]
-pub struct AtkMs901mAttitudeData {
+pub struct AtkMs901maltitudeData {
     /// 横滚角，单位：°
     pub roll: f32,
     /// 俯仰角，单位：°

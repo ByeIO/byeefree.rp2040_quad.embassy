@@ -213,6 +213,7 @@ dependencies = [
  "nalgebra",
  "num-traits",
  "panic-probe",
+ "paste",
  "pio 0.2.1",
  "pio-proc 0.2.2",
  "portable-atomic",

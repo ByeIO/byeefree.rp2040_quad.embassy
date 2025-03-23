@@ -139,8 +139,9 @@ pub async fn sensor_imu_task(
             use crate::utils::variables::Imu10DofDataEditor;
             Imu10DofDataEditor::write_data(imu_data).await;
             
-            defmt::println!("sensor_imu_task publish data ok");
-            defmt::error!("imu_data: {}", imu_data);
+            // DEBUG专用
+            // defmt::println!("sensor_imu_task publish data ok");
+            // defmt::error!("imu_data: {}", imu_data);
             
         }// end if
         

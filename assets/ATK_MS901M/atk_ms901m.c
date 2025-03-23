@@ -331,30 +331,30 @@ uint8_t atk_ms901m_init(uint32_t baudrate)
 
 /**
  * @brief       获取ATK-MS901M姿态角数据
- * @param       attitude_dat: 姿态角数据结构体
+ * @param       altitude_dat: 姿态角数据结构体
  *              timeout     : 获取数据最大等待超时时间，单位：毫秒（ms）
  * @retval      ATK_MS901M_EOK  : 获取ATK-MS901M姿态角数据成功
  *              ATK_MS901M_ERROR: 获取ATK-MS901M姿态角数据失败
  */
-uint8_t atk_ms901m_get_attitude(atk_ms901m_attitude_data_t *attitude_dat, uint32_t timeout)
+uint8_t atk_ms901m_get_altitude(atk_ms901m_altitude_data_t *altitude_dat, uint32_t timeout)
 {
     uint8_t ret;
     atk_ms901m_frame_t frame = {0};
     
-    if (attitude_dat == NULL)
+    if (altitude_dat == NULL)
     {
         return ATK_MS901M_ERROR;
     }
     
-    ret = atk_ms901m_get_frame_by_id(&frame, ATK_MS901M_FRAME_ID_ATTITUDE, ATK_MS901M_FRAME_ID_TYPE_UPLOAD, timeout);
+    ret = atk_ms901m_get_frame_by_id(&frame, ATK_MS901M_FRAME_ID_altitude, ATK_MS901M_FRAME_ID_TYPE_UPLOAD, timeout);
     if (ret != ATK_MS901M_EOK)
     {
         return ATK_MS901M_ERROR;
     }
     
-    attitude_dat->roll = (float)((int16_t)(frame.dat[1] << 8) | frame.dat[0]) / 32768 * 180;
-    attitude_dat->pitch = (float)((int16_t)(frame.dat[3] << 8) | frame.dat[2]) / 32768 * 180;
-    attitude_dat->yaw = (float)((int16_t)(frame.dat[5] << 8) | frame.dat[4]) / 32768 * 180;
+    altitude_dat->roll = (float)((int16_t)(frame.dat[1] << 8) | frame.dat[0]) / 32768 * 180;
+    altitude_dat->pitch = (float)((int16_t)(frame.dat[3] << 8) | frame.dat[2]) / 32768 * 180;
+    altitude_dat->yaw = (float)((int16_t)(frame.dat[5] << 8) | frame.dat[4]) / 32768 * 180;
     
     return ATK_MS901M_EOK;
 }
